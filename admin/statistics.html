@@ -1,1 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartQueue - Estadísticas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-dark text-light">
+    
+    <div class="d-flex">
+        <!-- Sidebar -->
+        <div class="bg-dark border-end border-secondary" style="width: 260px; min-height: 100vh; position: fixed;">
+            <div class="p-4">
+                <h4 class="fw-bold text-primary mb-4">SmartQueue <span class="badge bg-danger">Admin</span></h4>
+                
+                <div class="nav flex-column">
+                    <a href="index.html" class="nav-link text-white mb-2"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
+                    <a href="services.html" class="nav-link text-white mb-2"><i class="fas fa-list me-2"></i> Servicios</a>
+                    <a href="tickets.html" class="nav-link text-white mb-2"><i class="fas fa-ticket-alt me-2"></i> Turnos</a>
+                    <a href="users.html" class="nav-link text-white mb-2"><i class="fas fa-users me-2"></i> Usuarios</a>
+                    <a href="statistics.html" class="nav-link active text-white mb-2"><i class="fas fa-chart-bar me-2"></i> Estadísticas</a>
+                </div>
+            </div>
+        </div>
 
+        <!-- Contenido Principal -->
+        <div style="margin-left: 260px; width: 100%;">
+            <nav class="navbar navbar-dark bg-dark border-bottom border-secondary px-4 py-3">
+                <div class="container-fluid">
+                    <h5 class="mb-0 fw-semibold">Estadísticas y Reportes</h5>
+                    <button onclick="authManager.logout()" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                    </button>
+                </div>
+            </nav>
+
+            <div class="p-4">
+                <div class="row g-4">
+                    <!-- Resumen General -->
+                    <div class="col-12">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header border-secondary">
+                                <h5>Resumen General</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-md-3">
+                                        <h3 class="text-primary" id="totalTickets">0</h3>
+                                        <p class="text-muted">Total Turnos</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <h3 class="text-success" id="attendedTickets">0</h3>
+                                        <p class="text-muted">Atendidos</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <h3 class="text-warning" id="avgWaitTime">0</h3>
+                                        <p class="text-muted">Tiempo Promedio (min)</p>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <h3 class="text-info" id="activeUsers">0</h3>
+                                        <p class="text-muted">Usuarios Activos</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos -->
+                    <div class="col-lg-8">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header border-secondary">
+                                <h5>Turnos por Día (Últimos 7 días)</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="ticketsChart" height="120"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="card bg-dark border-secondary h-100">
+                            <div class="card-header border-secondary">
+                                <h5>Distribución por Servicio</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="serviceChart" height="280"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Últimos Turnos -->
+                    <div class="col-12">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header border-secondary d-flex justify-content-between">
+                                <h5>Últimos Turnos Atendidos</h5>
+                                <button onclick="loadStatistics()" class="btn btn-sm btn-outline-primary">Actualizar</button>
+                            </div>
+                            <div class="card-body" id="recentTicketsTable">
+                                <!-- Llenado por JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../js/firebase-config.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="js/admin-utils.js"></script>
+
+    <script>
+        let ticketsChart, serviceChart;
+
+        async function loadStatistics() {
+            await Promise.all([
+                loadSummaryStats(),
+                loadTicketsByDayChart(),
+                loadServiceDistributionChart(),
+                loadRecentTickets()
+            ]);
+        }
+
+        async function loadSummaryStats() {
+            const allTickets = await db.collection('tickets').get();
+            const attended = await db.collection('tickets').where('status', '==', 'attended').get();
+
+            document.getElementById('totalTickets').textContent = allTickets.size;
+            document.getElementById('attendedTickets').textContent = attended.size;
+            document.getElementById('avgWaitTime').textContent = "12"; // Simulado
+            document.getElementById('activeUsers').textContent = "48";
+        }
+
+        async function loadTicketsByDayChart() {
+            // Datos simulados por ahora (puedes mejorarlo con datos reales)
+            const ctx = document.getElementById('ticketsChart');
+            if (ticketsChart) ticketsChart.destroy();
+
+            ticketsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+                    datasets: [{
+                        label: 'Turnos',
+                        data: [45, 62, 38, 71, 55, 29, 41],
+                        borderColor: '#0d6efd',
+                        tension: 0.4,
+                        fill: true,
+                        backgroundColor: 'rgba(13, 110, 253, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        async function loadServiceDistributionChart() {
+            const ctx = document.getElementById('serviceChart');
+            if (serviceChart) serviceChart.destroy();
+
+            serviceChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Matrícula', 'Atención General', 'Reclamaciones', 'Información'],
+                    datasets: [{
+                        data: [35, 28, 22, 15],
+                        backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#6f42c1']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+        }
+
+        async function loadRecentTickets() {
+            const snapshot = await db.collection('tickets')
+                .where('status', '==', 'attended')
+                .orderBy('attendedAt', 'desc')
+                .limit(8)
+                .get();
+
+            let html = `<table class="table table-dark table-hover"><thead><tr>
+                <th>Ticket</th><th>Servicio</th><th>Usuario</th><th>Hora</th>
+            </tr></thead><tbody>`;
+
+            snapshot.forEach(doc => {
+                const t = doc.data();
+                html += `<tr>
+                    <td><strong>${t.ticketNumber}</strong></td>
+                    <td>${t.serviceName}</td>
+                    <td>${t.userEmail || '—'}</td>
+                    <td>${t.attendedAt ? new Date(t.attendedAt.toDate()).toLocaleTimeString('es-ES') : '—'}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            document.getElementById('recentTicketsTable').innerHTML = html || "<p class='text-muted'>No hay datos aún</p>";
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!window.currentUser || window.currentUserRole !== 'admin') {
+                window.location.href = '../login.html';
+                return;
+            }
+            loadStatistics();
+        });
+    </script>
+</body>
+</html>
