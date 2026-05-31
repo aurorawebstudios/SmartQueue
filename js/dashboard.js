@@ -1,4 +1,4 @@
-// js/dashboard.js
+// js/dashboard.js - Versión mejorada
 let currentTickets = [];
 
 async function loadUserTickets() {
@@ -10,25 +10,29 @@ async function loadUserTickets() {
     try {
         const snapshot = await db.collection('tickets')
             .where('userId', '==', window.currentUser.uid)
-            .where('status', 'in', ['waiting', 'calling'])
             .orderBy('createdAt', 'desc')
             .get();
 
         currentTickets = [];
         ticketsContainer.innerHTML = '';
 
-        if (snapshot.empty) {
-            noTickets.style.display = 'block';
-            return;
-        }
-
-        noTickets.style.display = 'none';
+        let activeTickets = 0;
 
         snapshot.forEach(doc => {
             const ticket = { id: doc.id, ...doc.data() };
             currentTickets.push(ticket);
-            renderTicketCard(ticket);
+            
+            if (ticket.status === 'waiting' || ticket.status === 'calling') {
+                activeTickets++;
+                renderTicketCard(ticket);
+            }
         });
+
+        if (activeTickets === 0) {
+            noTickets.style.display = 'block';
+        } else {
+            noTickets.style.display = 'none';
+        }
 
     } catch (error) {
         console.error("Error cargando tickets:", error);
@@ -37,22 +41,26 @@ async function loadUserTickets() {
 
 function renderTicketCard(ticket) {
     const container = document.getElementById('ticketsList');
-    
+    const statusClass = ticket.status === 'calling' ? 'bg-warning text-dark' : 'bg-success';
+    const statusText = ticket.status === 'calling' ? '¡Te están llamando!' : 'En espera';
+
     const html = `
         <div class="col-12 mb-3">
             <div class="card border-secondary bg-dark">
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
-                            <h4 class="mb-1 text-primary">${ticket.ticketNumber}</h4>
-                            <p class="mb-1">${ticket.serviceName || 'Servicio'}</p>
+                            <h4 class="mb-1 text-primary fw-bold">${ticket.ticketNumber}</h4>
+                            <p class="mb-2">${ticket.serviceName || 'Servicio General'}</p>
                             <small class="text-muted">
-                                ${new Date(ticket.createdAt?.toDate()).toLocaleString('es-ES')}
+                                Solicitado: ${ticket.createdAt ? new Date(ticket.createdAt.toDate()).toLocaleString('es-ES') : 'Ahora'}
                             </small>
                         </div>
+                        
                         <div class="text-end">
-                            <span class="badge bg-success fs-6">${ticket.status === 'calling' ? '¡Te están llamando!' : 'En espera'}</span>
-                            <button onclick="showQR('${ticket.id}')" class="btn btn-outline-light btn-sm mt-2 w-100">
+                            <span class="badge ${statusClass} fs-6 mb-2">${statusText}</span>
+                            <br>
+                            <button onclick="showQRModal('${ticket.id}')" class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-qrcode"></i> Ver QR
                             </button>
                         </div>
@@ -61,23 +69,28 @@ function renderTicketCard(ticket) {
             </div>
         </div>
     `;
+    
     container.innerHTML += html;
 }
 
 async function solicitarNuevoTurno() {
-    const services = await getActiveServices();
-    
-    if (services.length === 0) {
-        alert("No hay servicios disponibles en este momento.");
-        return;
-    }
-
-    // Por ahora tomamos el primer servicio (puedes mejorar con un modal selector)
-    const service = services[0];
-
-    const ticketNumber = generateTicketNumber(service.name);
-
     try {
+        // Obtener servicios activos
+        const servicesSnapshot = await db.collection('services')
+            .where('isActive', '==', true)
+            .get();
+
+        if (servicesSnapshot.empty) {
+            alert("No hay servicios disponibles en este momento.");
+            return;
+        }
+
+        // Seleccionar el primer servicio activo (puedes mejorar esto con un modal)
+        const serviceDoc = servicesSnapshot.docs[0];
+        const service = { id: serviceDoc.id, ...serviceDoc.data() };
+
+        const ticketNumber = `Q${Math.floor(1000 + Math.random() * 9000)}`;
+
         await db.collection('tickets').add({
             ticketNumber: ticketNumber,
             userId: window.currentUser.uid,
@@ -85,28 +98,19 @@ async function solicitarNuevoTurno() {
             serviceName: service.name,
             status: 'waiting',
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            position: await getNextPosition(service.id)
+            position: await calculatePosition(service.id)
         });
 
-        alert(`¡Turno solicitado! Número: ${ticketNumber}`);
+        alert(`✅ Turno solicitado correctamente!\n\nNúmero: ${ticketNumber}`);
         loadUserTickets();
+
     } catch (error) {
+        console.error(error);
         alert("Error al solicitar turno: " + error.message);
     }
 }
 
-function generateTicketNumber(serviceName) {
-    const prefix = serviceName.substring(0, 1).toUpperCase();
-    const random = Math.floor(1000 + Math.random() * 9000);
-    return `${prefix}-${random}`;
-}
-
-async function getActiveServices() {
-    const snapshot = await db.collection('services').where('isActive', '==', true).get();
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-}
-
-async function getNextPosition(serviceId) {
+async function calculatePosition(serviceId) {
     const snapshot = await db.collection('tickets')
         .where('serviceId', '==', serviceId)
         .where('status', '==', 'waiting')
@@ -114,46 +118,41 @@ async function getNextPosition(serviceId) {
     return snapshot.size + 1;
 }
 
-async function showQR(ticketId) {
+async function showQRModal(ticketId) {
     const ticket = currentTickets.find(t => t.id === ticketId);
     if (!ticket) return;
 
     const modal = new bootstrap.Modal(document.getElementById('qrModal'));
     
     document.getElementById('modalTicketNumber').textContent = ticket.ticketNumber;
-    document.getElementById('modalServiceName').textContent = ticket.serviceName;
+    document.getElementById('modalServiceName').textContent = ticket.serviceName || 'Servicio';
 
-    // Generar QR
-    document.getElementById('qrcode').innerHTML = '';
-    new QRCode(document.getElementById('qrcode'), {
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+    
+    new QRCode(qrContainer, {
         text: JSON.stringify({
             ticketId: ticket.id,
             ticketNumber: ticket.ticketNumber,
-            userId: ticket.userId
+            service: ticket.serviceName
         }),
-        width: 256,
-        height: 256,
+        width: 260,
+        height: 260,
         colorDark: "#ffffff",
-        colorLight: "#1a1a1a"
+        colorLight: "#212529"
     });
 
     modal.show();
 }
 
-function printQR() {
-    window.print();
-}
-
-// Cargar datos al iniciar
+// Inicialización
 document.addEventListener('DOMContentLoaded', () => {
     loadUserTickets();
-    
-    // Actualización en tiempo real
+
+    // Listener en tiempo real
     if (window.currentUser) {
         db.collection('tickets')
             .where('userId', '==', window.currentUser.uid)
-            .onSnapshot(() => {
-                loadUserTickets();
-            });
+            .onSnapshot(loadUserTickets);
     }
 });
