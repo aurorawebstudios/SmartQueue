@@ -3,113 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartQueue - Panel de Administración</title>
+    <title>Admin - SmartQueue</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
 </head>
-<body class="bg-dark text-light">
-    
+<body class="bg-light">
     <div class="d-flex">
         <!-- Sidebar -->
-        <div class="bg-dark border-end border-secondary" style="width: 260px; min-height: 100vh; position: fixed;">
-            <div class="p-4">
-                <h4 class="fw-bold text-primary mb-4">SmartQueue <span class="badge bg-danger">Admin</span></h4>
-                
-                <div class="nav flex-column">
-                    <a href="index.html" class="nav-link active text-white mb-2"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
-                    <a href="services.html" class="nav-link text-white mb-2"><i class="fas fa-list me-2"></i> Servicios</a>
-                    <a href="tickets.html" class="nav-link text-white mb-2"><i class="fas fa-ticket-alt me-2"></i> Turnos</a>
-                    <a href="users.html" class="nav-link text-white mb-2"><i class="fas fa-users me-2"></i> Usuarios</a>
-                    <a href="statistics.html" class="nav-link text-white mb-2"><i class="fas fa-chart-bar me-2"></i> Estadísticas</a>
+        <div id="sidebar"></div>
+
+        <!-- Main Content -->
+        <div class="flex-grow-1 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <h1 class="display-6 fw-bold">Dashboard Administrativo</h1>
+                <div class="d-flex gap-3">
+                    <button id="themeToggle" class="btn btn-outline-secondary">🌙</button>
+                    <span id="adminName" class="align-self-center"></span>
                 </div>
             </div>
-        </div>
 
-        <!-- Contenido Principal -->
-        <div style="margin-left: 260px; width: 100%;">
-            <!-- Topbar -->
-            <nav class="navbar navbar-dark bg-dark border-bottom border-secondary px-4 py-3">
-                <div class="container-fluid">
-                    <h5 class="mb-0 fw-semibold" id="pageTitle">Dashboard Administrativo</h5>
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="text-success"><i class="fas fa-circle"></i> En línea</span>
-                        <button onclick="authManager.logout()" class="btn btn-outline-light btn-sm">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                        </button>
-                    </div>
-                </div>
-            </nav>
-
-            <div class="p-4">
-                <div class="row g-4">
-                    <!-- Tarjetas de resumen -->
-                    <div class="col-md-3">
-                        <div class="card bg-dark border-success">
-                            <div class="card-body">
-                                <h5 class="text-success">Turnos en Espera</h5>
-                                <h2 class="fw-bold mb-0" id="waitingCount">0</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark border-primary">
-                            <div class="card-body">
-                                <h5 class="text-primary">Turnos Atendidos Hoy</h5>
-                                <h2 class="fw-bold mb-0" id="attendedToday">0</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark border-warning">
-                            <div class="card-body">
-                                <h5 class="text-warning">Servicios Activos</h5>
-                                <h2 class="fw-bold mb-0" id="activeServices">0</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="card bg-dark border-info">
-                            <div class="card-body">
-                                <h5 class="text-info">Usuarios Totales</h5>
-                                <h2 class="fw-bold mb-0" id="totalUsers">0</h2>
-                            </div>
+            <div class="row g-4">
+                <!-- Stats Cards -->
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted">Turnos en Espera</h6>
+                            <h2 id="waitingCount" class="display-4 fw-bold text-primary">0</h2>
                         </div>
                     </div>
                 </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted">Servicios Activos</h6>
+                            <h2 id="activeServices" class="display-4 fw-bold text-success">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted">Usuarios Totales</h6>
+                            <h2 id="totalUsers" class="display-4 fw-bold">0</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h6 class="text-muted">Turnos Atendidos Hoy</h6>
+                            <h2 id="attendedToday" class="display-4 fw-bold text-info">0</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Turnos Activos -->
-                <div class="card bg-dark border-secondary mt-4">
-                    <div class="card-header border-secondary d-flex justify-content-between">
-                        <h5>Turnos en Cola</h5>
-                        <button onclick="refreshAdminData()" class="btn btn-sm btn-outline-primary">
-                            <i class="fas fa-sync"></i> Actualizar
-                        </button>
-                    </div>
-                    <div class="card-body" id="adminTicketsList">
-                        <!-- Se llena con JS -->
-                    </div>
+            <!-- Turnos en Cola -->
+            <div class="card border-0 shadow-sm mt-5">
+                <div class="card-header bg-white">
+                    <h5>Turnos en Cola (Tiempo Real)</h5>
+                </div>
+                <div class="card-body" id="liveQueue">
+                    <!-- Llenado dinámico -->
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/firebase-config.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="js/admin-utils.js"></script>
+    <script type="module">
+        import { protectRoute, isAdmin, logoutUser } from '../js/auth.js';
+        import { getServices, listenToQueue } from '../js/queue-service.js';
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!window.currentUser || window.currentUserRole !== 'admin') {
-                alert("Acceso denegado. Solo administradores.");
-                window.location.href = '../login.html';
-            }
-            loadAdminDashboard();
-        });
+        protectRoute('admin');
+
+        async function loadAdminDashboard() {
+            const user = await isAdmin();
+            if (!user) return;
+
+            document.getElementById('adminName').textContent = "Administrador";
+
+            // Cargar stats (simulado por ahora)
+            document.getElementById('waitingCount').textContent = "18";
+            document.getElementById('activeServices').textContent = "5";
+            document.getElementById('totalUsers').textContent = "238";
+            document.getElementById('attendedToday').textContent = "76";
+        }
+
+        // Cargar sidebar
+        fetch('../components/sidebar-admin.html')
+            .then(res => res.text())
+            .then(html => document.getElementById('sidebar').innerHTML = html);
+
+        window.onload = loadAdminDashboard;
+        window.logoutUser = logoutUser;
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

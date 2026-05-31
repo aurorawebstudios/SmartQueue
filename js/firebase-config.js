@@ -1,35 +1,23 @@
-// =============================================
-// FIREBASE CONFIGURATION - SMARTQUEUE
-// =============================================
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyBlV2jQBstYWe0XTZLDbTY8XyVP-1xY0RE",
+    authDomain: "smartqueue-2026.firebaseapp.com",
+    projectId: "smartqueue-2026",
+    storageBucket: "smartqueue-2026.firebasestorage.app",
+    messagingSenderId: "619380541977",
+    appId: "1:619380541977:web:d68416942a02c04d8db888",
+    measurementId: "G-GWE9DNNHJQ"
+  };
 
-// ================== CONFIGURACIÓN ==================
-// Reemplaza estos valores con los tuyos desde Firebase Console
-const firebaseConfig = {
-    apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-    authDomain: "smartqueue-XXXXX.firebaseapp.com",
-    projectId: "smartqueue-XXXXX",
-    storageBucket: "smartqueue-XXXXX.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:XXXXXXXXXXXXXXXXXXXXXX"
-};
-
-// ================== INICIALIZACIÓN ==================
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-export { auth, db };
-
-// Utility para obtener usuario actual
-export const getCurrentUser = () => {
-    return new Promise((resolve, reject) => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
-            unsubscribe();
-            resolve(user);
-        }, reject);
-    });
-};
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>

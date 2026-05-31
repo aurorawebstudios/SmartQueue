@@ -1,158 +1,252 @@
-// js/dashboard.js - Versión mejorada
-let currentTickets = [];
+// =============================================================================
+// Dashboard de usuario: turnos activos, posición en cola (tiempo real), QR,
+// historial y solicitud de nuevos turnos.
+// =============================================================================
+import { db } from "./firebase-init.js";
+import { requireAuth } from "./auth.js";
+import { toast, fmtTime, statusLabel } from "./utils.js";
+import {
+  collection, query, where, orderBy, onSnapshot,
+  addDoc, doc, runTransaction, serverTimestamp,
+  updateDoc, getDocs,
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-async function loadUserTickets() {
-    if (!window.currentUser) return;
+const user = await requireAuth();
+document.getElementById("user-email").textContent = user.email;
+if (user.role === "admin") {
+  // Cómodo: si el admin entra aquí, le ofrecemos su panel.
+  // Pero no forzamos.
+}
 
-    const ticketsContainer = document.getElementById('ticketsList');
-    const noTickets = document.getElementById('noTickets');
+// --- Navegación por pestañas (SPA simple) ----------------------------------
+const tabs = document.querySelectorAll("[data-tab]");
+const pages = document.querySelectorAll(".sq-page");
+const title = document.getElementById("page-title");
+const titles = { home: "Inicio", new: "Pedir turno", history: "Historial" };
+function go(tab) {
+  document.querySelectorAll(".side-link[data-tab]").forEach(l =>
+    l.classList.toggle("active", l.dataset.tab === tab));
+  pages.forEach(p => p.classList.toggle("active", p.dataset.page === tab));
+  title.textContent = titles[tab] || "Panel";
+}
+tabs.forEach(t => t.addEventListener("click", () => go(t.dataset.tab)));
 
-    try {
-        const snapshot = await db.collection('tickets')
-            .where('userId', '==', window.currentUser.uid)
-            .orderBy('createdAt', 'desc')
-            .get();
-
-        currentTickets = [];
-        ticketsContainer.innerHTML = '';
-
-        let activeTickets = 0;
-
-        snapshot.forEach(doc => {
-            const ticket = { id: doc.id, ...doc.data() };
-            currentTickets.push(ticket);
-            
-            if (ticket.status === 'waiting' || ticket.status === 'calling') {
-                activeTickets++;
-                renderTicketCard(ticket);
-            }
-        });
-
-        if (activeTickets === 0) {
-            noTickets.style.display = 'block';
-        } else {
-            noTickets.style.display = 'none';
-        }
-
-    } catch (error) {
-        console.error("Error cargando tickets:", error);
+// --- Servicios disponibles --------------------------------------------------
+const servicesList = document.getElementById("services-list");
+onSnapshot(
+  query(collection(db, "services"), where("active", "==", true)),
+  (snap) => {
+    if (snap.empty) {
+      servicesList.innerHTML = `<div class="col-12 text-muted">No hay servicios disponibles ahora mismo.</div>`;
+      return;
     }
-}
-
-function renderTicketCard(ticket) {
-    const container = document.getElementById('ticketsList');
-    const statusClass = ticket.status === 'calling' ? 'bg-warning text-dark' : 'bg-success';
-    const statusText = ticket.status === 'calling' ? '¡Te están llamando!' : 'En espera';
-
-    const html = `
-        <div class="col-12 mb-3">
-            <div class="card border-secondary bg-dark">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h4 class="mb-1 text-primary fw-bold">${ticket.ticketNumber}</h4>
-                            <p class="mb-2">${ticket.serviceName || 'Servicio General'}</p>
-                            <small class="text-muted">
-                                Solicitado: ${ticket.createdAt ? new Date(ticket.createdAt.toDate()).toLocaleString('es-ES') : 'Ahora'}
-                            </small>
-                        </div>
-                        
-                        <div class="text-end">
-                            <span class="badge ${statusClass} fs-6 mb-2">${statusText}</span>
-                            <br>
-                            <button onclick="showQRModal('${ticket.id}')" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-qrcode"></i> Ver QR
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-    
-    container.innerHTML += html;
-}
-
-async function solicitarNuevoTurno() {
-    try {
-        // Obtener servicios activos
-        const servicesSnapshot = await db.collection('services')
-            .where('isActive', '==', true)
-            .get();
-
-        if (servicesSnapshot.empty) {
-            alert("No hay servicios disponibles en este momento.");
-            return;
-        }
-
-        // Seleccionar el primer servicio activo (puedes mejorar esto con un modal)
-        const serviceDoc = servicesSnapshot.docs[0];
-        const service = { id: serviceDoc.id, ...serviceDoc.data() };
-
-        const ticketNumber = `Q${Math.floor(1000 + Math.random() * 9000)}`;
-
-        await db.collection('tickets').add({
-            ticketNumber: ticketNumber,
-            userId: window.currentUser.uid,
-            serviceId: service.id,
-            serviceName: service.name,
-            status: 'waiting',
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            position: await calculatePosition(service.id)
-        });
-
-        alert(`✅ Turno solicitado correctamente!\n\nNúmero: ${ticketNumber}`);
-        loadUserTickets();
-
-    } catch (error) {
-        console.error(error);
-        alert("Error al solicitar turno: " + error.message);
-    }
-}
-
-async function calculatePosition(serviceId) {
-    const snapshot = await db.collection('tickets')
-        .where('serviceId', '==', serviceId)
-        .where('status', '==', 'waiting')
-        .get();
-    return snapshot.size + 1;
-}
-
-async function showQRModal(ticketId) {
-    const ticket = currentTickets.find(t => t.id === ticketId);
-    if (!ticket) return;
-
-    const modal = new bootstrap.Modal(document.getElementById('qrModal'));
-    
-    document.getElementById('modalTicketNumber').textContent = ticket.ticketNumber;
-    document.getElementById('modalServiceName').textContent = ticket.serviceName || 'Servicio';
-
-    const qrContainer = document.getElementById('qrcode');
-    qrContainer.innerHTML = '';
-    
-    new QRCode(qrContainer, {
-        text: JSON.stringify({
-            ticketId: ticket.id,
-            ticketNumber: ticket.ticketNumber,
-            service: ticket.serviceName
-        }),
-        width: 260,
-        height: 260,
-        colorDark: "#ffffff",
-        colorLight: "#212529"
+    servicesList.innerHTML = "";
+    snap.forEach((d) => {
+      const s = d.data();
+      const col = document.createElement("div");
+      col.className = "col-md-6 col-lg-4";
+      col.innerHTML = `
+        <div class="sq-feature h-100 d-flex flex-column">
+          <div class="ico">🎫</div>
+          <h5>${escapeHtml(s.name || "Servicio")}</h5>
+          <p>${escapeHtml(s.description || "—")}</p>
+          <button class="btn btn-primary mt-3" data-take="${d.id}" data-name="${escapeHtml(s.name||"")}">
+            Pedir turno
+          </button>
+        </div>`;
+      servicesList.appendChild(col);
     });
+  },
+  (err) => { console.error(err); toast("No se pudieron cargar los servicios.", "error"); }
+);
 
-    modal.show();
+servicesList.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-take]");
+  if (!btn) return;
+  btn.disabled = true; btn.textContent = "Generando...";
+  try {
+    await takeTicket(btn.dataset.take, btn.dataset.name);
+    toast("Turno creado correctamente.", "success");
+    go("home");
+  } catch (err) {
+    console.error(err); toast(err.message || "No se pudo crear el turno.", "error");
+  } finally { btn.disabled = false; btn.textContent = "Pedir turno"; }
+});
+
+async function takeTicket(serviceId, serviceName) {
+  // Evita duplicados activos en el mismo servicio.
+  const existing = await getDocs(query(
+    collection(db, "tickets"),
+    where("userId", "==", user.uid),
+    where("serviceId", "==", serviceId),
+    where("status", "in", ["waiting", "serving"]),
+  ));
+  if (!existing.empty) throw new Error("Ya tienes un turno activo en este servicio.");
+
+  // Incrementa el contador atómicamente para asignar el número.
+  const number = await runTransaction(db, async (tx) => {
+    const ref = doc(db, "counters", serviceId);
+    const snap = await tx.get(ref);
+    const last = snap.exists() ? (snap.data().lastNumber || 0) : 0;
+    const next = last + 1;
+    tx.set(ref, { lastNumber: next }, { merge: true });
+    return next;
+  });
+
+  await addDoc(collection(db, "tickets"), {
+    userId: user.uid,
+    userEmail: user.email,
+    serviceId,
+    serviceName,
+    number,
+    status: "waiting",
+    createdAt: serverTimestamp(),
+    calledAt: null,
+    completedAt: null,
+  });
 }
 
-// Inicialización
-document.addEventListener('DOMContentLoaded', () => {
-    loadUserTickets();
+// --- Turnos del usuario (tiempo real) --------------------------------------
+const activeArea = document.getElementById("active-ticket-area");
+const historyBody = document.getElementById("history-body");
+const statActive = document.getElementById("stat-active");
+const statDone = document.getElementById("stat-done");
+const statCancelled = document.getElementById("stat-cancelled");
 
-    // Listener en tiempo real
-    if (window.currentUser) {
-        db.collection('tickets')
-            .where('userId', '==', window.currentUser.uid)
-            .onSnapshot(loadUserTickets);
-    }
+let allTickets = [];
+
+onSnapshot(
+  query(
+    collection(db, "tickets"),
+    where("userId", "==", user.uid),
+    orderBy("createdAt", "desc"),
+  ),
+  (snap) => {
+    allTickets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderStats();
+    renderHistory();
+    renderActive();
+  },
+  (err) => { console.error(err); toast("Error cargando tus turnos.", "error"); }
+);
+
+function renderStats() {
+  statActive.textContent = allTickets.filter(t => t.status === "waiting" || t.status === "serving").length;
+  statDone.textContent = allTickets.filter(t => t.status === "done").length;
+  statCancelled.textContent = allTickets.filter(t => t.status === "cancelled").length;
+}
+
+function renderHistory() {
+  if (!allTickets.length) {
+    historyBody.innerHTML = `<tr><td colspan="5" class="text-muted text-center py-4">Sin turnos todavía.</td></tr>`;
+    return;
+  }
+  historyBody.innerHTML = allTickets.map(t => `
+    <tr>
+      <td>${escapeHtml(t.serviceName || "—")}</td>
+      <td><strong>#${t.number}</strong></td>
+      <td><span class="sq-badge ${t.status}">${statusLabel(t.status)}</span></td>
+      <td>${fmtTime(t.createdAt)}</td>
+      <td>${fmtTime(t.completedAt)}</td>
+    </tr>`).join("");
+}
+
+// Caches de posición en cola por servicio (para no abrir 1 listener por ticket).
+const queueCache = new Map();   // serviceId -> array de tickets activos ordenados
+const queueSubs  = new Map();   // serviceId -> unsubscribe
+
+function ensureQueueListener(serviceId, onUpdate) {
+  if (queueSubs.has(serviceId)) {
+    onUpdate(queueCache.get(serviceId) || []);
+    return;
+  }
+  const unsub = onSnapshot(
+    query(
+      collection(db, "tickets"),
+      where("serviceId", "==", serviceId),
+      where("status", "in", ["waiting", "serving"]),
+      orderBy("number", "asc"),
+    ),
+    (snap) => {
+      const arr = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      queueCache.set(serviceId, arr);
+      onUpdate(arr);
+    },
+    (err) => console.error(err),
+  );
+  queueSubs.set(serviceId, unsub);
+}
+
+function renderActive() {
+  const active = allTickets.filter(t => t.status === "waiting" || t.status === "serving");
+  if (!active.length) {
+    activeArea.innerHTML = `<p class="text-muted mb-0">No tienes ningún turno activo. <a href="#" data-tab="new">Pide uno</a>.</p>`;
+    return;
+  }
+  activeArea.innerHTML = active.map(t => `
+    <div class="row g-4 align-items-stretch mb-3" data-ticket="${t.id}">
+      <div class="col-md-6">
+        <div class="sq-ticket h-100">
+          <div class="meta">${escapeHtml(t.serviceName || "Servicio")}</div>
+          <div class="num">#${t.number}</div>
+          <div class="meta">Estado: <span class="sq-badge ${t.status}">${statusLabel(t.status)}</span></div>
+          <div class="meta mt-2" data-pos>Calculando posición…</div>
+          <div class="d-flex gap-2 justify-content-center mt-3">
+            <button class="btn btn-outline-soft btn-sm" data-cancel="${t.id}">Cancelar turno</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="sq-card p-4 h-100 text-center">
+          <div class="text-muted small mb-2">Muestra este QR en mostrador</div>
+          <div class="sq-qr-wrap" data-qr></div>
+          <div class="text-muted small mt-2">ID: ${t.id.slice(0,8)}</div>
+        </div>
+      </div>
+    </div>`).join("");
+
+  active.forEach(t => {
+    const root = activeArea.querySelector(`[data-ticket="${t.id}"]`);
+    if (!root) return;
+    // QR
+    const qrEl = root.querySelector("[data-qr]");
+    qrEl.innerHTML = "";
+    /* global QRCode */
+    new QRCode(qrEl, {
+      text: JSON.stringify({ t: t.id, s: t.serviceId, n: t.number }),
+      width: 180, height: 180, correctLevel: QRCode.CorrectLevel.M,
+    });
+    // Posición
+    ensureQueueListener(t.serviceId, (arr) => {
+      const idx = arr.findIndex(x => x.id === t.id);
+      const posEl = root.querySelector("[data-pos]");
+      if (!posEl) return;
+      if (t.status === "serving") posEl.textContent = "Te están atendiendo ahora";
+      else if (idx < 0) posEl.textContent = "Tu turno ya no está en cola";
+      else {
+        const ahead = arr.slice(0, idx).filter(x => x.status !== "serving").length;
+        posEl.innerHTML = `Posición <strong>${idx + 1}</strong> · ${ahead} delante de ti`;
+      }
+    });
+  });
+}
+
+activeArea.addEventListener("click", async (e) => {
+  const a = e.target.closest("[data-tab]");
+  if (a) { e.preventDefault(); go(a.dataset.tab); return; }
+  const c = e.target.closest("[data-cancel]");
+  if (c) {
+    if (!confirm("¿Cancelar este turno?")) return;
+    try {
+      await updateDoc(doc(db, "tickets", c.dataset.cancel), {
+        status: "cancelled", completedAt: serverTimestamp(),
+      });
+      toast("Turno cancelado.", "info");
+    } catch (err) { toast(err.message || "Error al cancelar.", "error"); }
+  }
 });
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, m =>
+    ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+}

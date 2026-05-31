@@ -3,173 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartQueue - Gestionar Servicios</title>
+    <title>Servicios - SmartQueue Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
 </head>
-<body class="bg-dark text-light">
+<body>
     <div class="d-flex">
-        <!-- Sidebar -->
-        <div class="bg-dark border-end border-secondary" style="width: 260px; min-height: 100vh; position: fixed;">
-            <div class="p-4">
-                <h4 class="fw-bold text-primary mb-4">SmartQueue <span class="badge bg-danger">Admin</span></h4>
-                <div class="nav flex-column">
-                    <a href="index.html" class="nav-link text-white mb-2"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
-                    <a href="services.html" class="nav-link active text-white mb-2"><i class="fas fa-list me-2"></i> Servicios</a>
-                    <a href="tickets.html" class="nav-link text-white mb-2"><i class="fas fa-ticket-alt me-2"></i> Turnos</a>
-                    <a href="users.html" class="nav-link text-white mb-2"><i class="fas fa-users me-2"></i> Usuarios</a>
-                    <a href="statistics.html" class="nav-link text-white mb-2"><i class="fas fa-chart-bar me-2"></i> Estadísticas</a>
-                </div>
-            </div>
-        </div>
-
-        <div style="margin-left: 260px; width: 100%;">
-            <nav class="navbar navbar-dark bg-dark border-bottom border-secondary px-4 py-3">
-                <h5 class="mb-0">Gestión de Servicios</h5>
-                <button onclick="authManager.logout()" class="btn btn-outline-light btn-sm">Cerrar Sesión</button>
-            </nav>
-
-            <div class="p-4">
-                <button onclick="showCreateServiceModal()" class="btn btn-primary mb-4">
-                    <i class="fas fa-plus"></i> Nuevo Servicio
+        <div id="sidebar"></div>
+        
+        <div class="flex-grow-1 p-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-6 fw-bold">Gestión de Servicios</h1>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newServiceModal">
+                    <i class="bi bi-plus-lg"></i> Nuevo Servicio
                 </button>
+            </div>
 
-                <div class="card bg-dark border-secondary" id="servicesList">
-                    <!-- Llenado por JS -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <table class="table table-hover align-middle" id="servicesTable">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Descripción</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Crear/Editar Servicio -->
-    <div class="modal fade" id="serviceModal" tabindex="-1">
+    <!-- Modal Nuevo Servicio -->
+    <div class="modal fade" id="newServiceModal" tabindex="-1">
         <div class="modal-dialog">
-            <div class="modal-content bg-dark text-light">
-                <div class="modal-header border-secondary">
-                    <h5 class="modal-title" id="modalTitle">Nuevo Servicio</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Servicio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="serviceId">
-                    <div class="mb-3">
-                        <label>Nombre del Servicio</label>
-                        <input type="text" id="serviceName" class="form-control bg-dark text-light" required>
-                    </div>
-                    <div class="mb-3">
-                        <label>Descripción</label>
-                        <textarea id="serviceDesc" class="form-control bg-dark text-light" rows="3"></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" id="serviceActive" class="form-check-input" checked>
-                        <label class="form-check-label">Servicio Activo</label>
-                    </div>
+                    <form id="newServiceForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del Servicio</label>
+                            <input type="text" class="form-control" id="serviceName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" id="serviceDesc" rows="3"></textarea>
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-footer border-secondary">
-                    <button onclick="saveService()" class="btn btn-primary">Guardar</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="createNewService()">Crear Servicio</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../js/firebase-config.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="js/admin-utils.js"></script>
+    <script type="module">
+        import { protectRoute, logoutUser } from '../js/auth.js';
+        import { createService, getAllServices } from '../js/admin-service.js';
 
-    <script>
-        let currentEditId = null;
+        protectRoute('admin');
+
+        fetch('../components/sidebar-admin.html')
+            .then(res => res.text())
+            .then(html => document.getElementById('sidebar').innerHTML = html);
 
         async function loadServices() {
-            const snapshot = await db.collection('services').get();
-            let html = '<div class="list-group">';
+            const services = await getAllServices();
+            const tbody = document.querySelector('#servicesTable tbody');
+            tbody.innerHTML = '';
 
-            snapshot.forEach(doc => {
-                const s = doc.data();
-                html += `
-                    <div class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center">
-                        <div>
-                            <strong>${s.name}</strong><br>
-                            <small class="text-muted">${s.description || ''}</small>
-                        </div>
-                        <div>
-                            <span class="badge ${s.isActive ? 'bg-success' : 'bg-secondary'}">${s.isActive ? 'Activo' : 'Inactivo'}</span>
-                            <button onclick="editService('${doc.id}')" class="btn btn-sm btn-outline-primary ms-2">Editar</button>
-                            <button onclick="deleteService('${doc.id}')" class="btn btn-sm btn-outline-danger ms-1">Eliminar</button>
-                        </div>
-                    </div>`;
+            services.forEach(service => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${service.name}</strong></td>
+                    <td>${service.description || '-'}</td>
+                    <td><span class="badge bg-success">Activo</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteService('${service.id}')">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
             });
-
-            html += '</div>';
-            document.getElementById('servicesList').innerHTML = html || '<p class="text-muted">No hay servicios creados</p>';
         }
 
-        function showCreateServiceModal() {
-            currentEditId = null;
-            document.getElementById('modalTitle').textContent = 'Nuevo Servicio';
-            document.getElementById('serviceName').value = '';
-            document.getElementById('serviceDesc').value = '';
-            document.getElementById('serviceActive').checked = true;
-            new bootstrap.Modal(document.getElementById('serviceModal')).show();
-        }
-
-        async function saveService() {
+        window.createNewService = async () => {
             const name = document.getElementById('serviceName').value;
             const desc = document.getElementById('serviceDesc').value;
-            const active = document.getElementById('serviceActive').checked;
-
+            
             if (!name) return alert("El nombre es obligatorio");
-
-            try {
-                if (currentEditId) {
-                    await db.collection('services').doc(currentEditId).update({
-                        name, description: desc, isActive: active
-                    });
-                } else {
-                    await db.collection('services').add({
-                        name,
-                        description: desc,
-                        isActive: active,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-                bootstrap.Modal.getInstance(document.getElementById('serviceModal')).hide();
-                loadServices();
-            } catch (e) {
-                alert("Error: " + e.message);
-            }
-        }
-
-        async function editService(id) {
-            currentEditId = id;
-            const doc = await db.collection('services').doc(id).get();
-            const s = doc.data();
-
-            document.getElementById('modalTitle').textContent = 'Editar Servicio';
-            document.getElementById('serviceName').value = s.name;
-            document.getElementById('serviceDesc').value = s.description || '';
-            document.getElementById('serviceActive').checked = s.isActive;
-
-            new bootstrap.Modal(document.getElementById('serviceModal')).show();
-        }
-
-        async function deleteService(id) {
-            if (confirm("¿Eliminar este servicio?")) {
-                await db.collection('services').doc(id).delete();
-                loadServices();
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!window.currentUser || window.currentUserRole !== 'admin') {
-                window.location.href = '../login.html';
-                return;
-            }
+            
+            await createService({ name, description: desc });
+            alert("✅ Servicio creado correctamente");
+            bootstrap.Modal.getInstance(document.getElementById('newServiceModal')).hide();
             loadServices();
-        });
+        };
+
+        window.deleteService = async (id) => {
+            if (confirm("¿Eliminar este servicio?")) {
+                // Implementar deleteService en admin-service.js
+                alert("Servicio eliminado (simulado)");
+                loadServices();
+            }
+        };
+
+        window.onload = loadServices;
+        window.logoutUser = logoutUser;
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
