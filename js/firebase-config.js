@@ -1,22 +1,35 @@
-// js/firebase-config.js
+// =============================================
+// FIREBASE CONFIGURATION - SMARTQUEUE
+// =============================================
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+// ================== CONFIGURACIÓN ==================
+// Reemplaza estos valores con los tuyos desde Firebase Console
 const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "smartqueue-2026.firebaseapp.com",
-    projectId: "smartqueue-2026",
-    storageBucket: "smartqueue-2026.firebasestorage.app",
-    messagingSenderId: "XXXXXXXXXXXX",
-    appId: "1:XXXXXXXXXXXX:web:XXXXXXXXXXXXXXXXXX"
+    apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+    authDomain: "smartqueue-XXXXX.firebaseapp.com",
+    projectId: "smartqueue-XXXXX",
+    storageBucket: "smartqueue-XXXXX.appspot.com",
+    messagingSenderId: "123456789012",
+    appId: "1:123456789012:web:XXXXXXXXXXXXXXXXXXXXXX"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// ================== INICIALIZACIÓN ==================
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Initialize Services
-const auth = firebase.auth();
-const db = firebase.firestore();
-const storage = firebase.storage();
+export { auth, db };
 
-// Exportar para usar en otros archivos
-window.auth = auth;
-window.db = db;
-window.storage = storage;
+// Utility para obtener usuario actual
+export const getCurrentUser = () => {
+    return new Promise((resolve, reject) => {
+        const unsubscribe = auth.onAuthStateChanged(user => {
+            unsubscribe();
+            resolve(user);
+        }, reject);
+    });
+};
