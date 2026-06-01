@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Administración · SmartQueue</title>
 <meta name="description" content="Panel de administración: servicios, colas, escaneo y estadísticas." />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -40,12 +40,23 @@
 
   <main class="sq-main">
     <div class="sq-topbar">
-      <h1 id="page-title">Colas</h1>
-      <div class="d-flex gap-2 align-items-center">
-        <span class="user-email small" id="user-email"></span> <!-- QUEUES -->
-        <button class="sq-theme-btn" data-theme-toggle><span data-theme-icon>🌙</span></button>
-      </div>
-    </div>
+  <div class="d-flex align-items-center gap-3">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <h1 id="page-title">Inicio</h1>
+  </div>
+  
+  <div class="d-flex gap-2 align-items-center">
+    <span class="user-email small" id="user-email"></span>
+    
+    <button class="sq-theme-btn px-2" data-settings-toggle title="Configuración" style="font-size:1.15rem;">
+      ⚙️
+    </button>
+    
+    <button class="sq-theme-btn" data-theme-toggle>
+      <span data-theme-icon>🌙</span>
+    </button>
+  </div>
+</div>
 
     <!-- QUEUES -->
     <section class="sq-page active" data-page="queues">

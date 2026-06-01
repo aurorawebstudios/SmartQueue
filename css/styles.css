@@ -300,3 +300,88 @@ hr { border-color: var(--sq-border); opacity: 1; }
   font-size: 0.8rem;
   line-height: 1.4;
 }
+
+/* =============================================
+   RESPONSIVE FINAL - MÓVIL + PC (Optimizado)
+   ============================================= */
+
+.sq-shell {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 992px) {
+  .sq-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sq-side {
+    position: fixed;
+    left: -285px;
+    top: 0;
+    width: 285px;
+    height: 100vh;
+    z-index: 1050;
+    transition: left 0.4s cubic-bezier(0.32, 0.72, 0, 1);
+    box-shadow: 5px 0 30px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    padding-bottom: 80px;
+  }
+
+  .sq-side.open {
+    left: 0;
+  }
+
+  .sq-main {
+    padding: 1rem !important;
+  }
+
+  .sq-topbar {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--sq-border);
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+}
+
+/* Botón Hamburguesa */
+.mobile-menu-btn {
+  font-size: 1.85rem;
+  background: none;
+  border: none;
+  color: var(--sq-fg);
+  width: 50px;
+  height: 50px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Mejor experiencia en móviles */
+@media (max-width: 576px) {
+  .sq-card {
+    padding: 1.25rem !important;
+  }
+  
+  .sq-stat .value {
+    font-size: 1.65rem;
+  }
+  
+  .table th, .table td {
+    font-size: 0.9rem;
+    padding: 0.65rem 0.4rem;
+  }
+}
+
+/* Prevenir zoom en iOS */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+  font-size: 16px !important;
+}

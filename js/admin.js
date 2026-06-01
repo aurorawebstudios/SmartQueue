@@ -337,3 +337,44 @@ async function renderStats() {
     });
   } catch (err) { console.error(err); toast("Error cargando estadísticas.", "error"); }
 }
+// === ABRIR PERFIL DESDE EL BOTÓN DE ENGARANAJE ===
+document.addEventListener("click", (e) => {
+  if (e.target.closest("[data-settings-toggle]")) {
+    window.location.href = "dashboard/profile.html";   // Para dashboard
+    // Si estás en admin.html usa: "dashboard/profile.html"
+  }
+});
+
+// ====================== MENÚ MÓVIL ROBUSTO ======================
+function initMobileMenu() {
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const sidebar = document.querySelector('.sq-side');
+  
+  if (!mobileBtn || !sidebar) return;
+
+  mobileBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    sidebar.classList.toggle('open');
+  });
+
+  // Cerrar al tocar fuera
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 992) {
+      if (!e.target.closest('.sq-side') && !e.target.closest('#mobile-menu-btn')) {
+        sidebar.classList.remove('open');
+      }
+    }
+  });
+
+  // Cerrar al hacer clic en un enlace del menú (móvil)
+  document.querySelectorAll('.side-link').forEach(link => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth <= 992) {
+        sidebar.classList.remove('open');
+      }
+    });
+  });
+}
+
+// Inicializar cuando cargue el DOM
+document.addEventListener('DOMContentLoaded', initMobileMenu);
