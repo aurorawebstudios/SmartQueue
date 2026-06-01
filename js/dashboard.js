@@ -12,7 +12,11 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const user = await requireAuth();
-document.getElementById("user-email").textContent = user.email;
+if (user.role === "admin") {
+  document.getElementById("admin-menu-link").style.display = "flex";
+}
+document.getElementById("user-email").textContent =
+  user.displayName || user.email;
 if (user.role === "admin") {
   // Cómodo: si el admin entra aquí, le ofrecemos su panel.
   // Pero no forzamos.

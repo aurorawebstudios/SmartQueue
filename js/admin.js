@@ -12,7 +12,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const admin = await requireAdmin();
-document.getElementById("user-email").textContent = admin.email + " · admin";
+document.getElementById("user-email").textContent =
+  (admin.displayName || admin.email) + " · " + admin.role;
 
 // --- Navegación SPA --------------------------------------------------------
 const titles = { queues:"Colas", scan:"Escanear QR", services:"Servicios", users:"Usuarios", stats:"Estadísticas" };

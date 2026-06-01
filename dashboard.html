@@ -20,15 +20,29 @@
     <div class="side-link active" data-tab="home">🏠 <span>Inicio</span></div>
     <div class="side-link" data-tab="new">➕ <span>Pedir turno</span></div>
     <div class="side-link" data-tab="history">🕘 <span>Historial</span></div>
-    <div class="nav-section">Sesión</div>
-    <div class="side-link" data-logout>↩️ <span>Cerrar sesión</span></div>
+    <div class="nav-section">Administración</div>
+
+<a
+  href="admin.html"
+  id="admin-menu-link"
+  class="side-link"
+  style="display:none;"
+>
+  ⚙️ <span>Panel Admin</span>
+</a>
+
+<div class="nav-section">Sesión</div>
+
+<div class="side-link" data-logout>
+  ↩️ <span>Cerrar sesión</span>
+</div>
   </aside>
 
   <main class="sq-main">
     <div class="sq-topbar">
       <h1 id="page-title">Inicio</h1>
       <div class="d-flex gap-2 align-items-center">
-        <span class="text-muted small" id="user-email"></span>
+        <span class="user-email small" id="user-email"></span>
         <button class="sq-theme-btn" data-theme-toggle><span data-theme-icon>🌙</span></button>
       </div>
     </div>
