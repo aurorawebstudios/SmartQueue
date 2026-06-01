@@ -277,3 +277,26 @@ hr { border-color: var(--sq-border); opacity: 1; }
 /* Theme toggle btn */
 .sq-theme-btn { width: 38px; height: 38px; border-radius: 10px; display:grid; place-items:center; background: transparent; border:1px solid var(--sq-border); color: var(--sq-fg); }
 .sq-theme-btn:hover { background: var(--sq-bg-soft); }
+/* =============================================
+   MEJORA VISIBILIDAD DE TEXTOS DE AYUDA
+   ============================================= */
+
+.form-text {
+  color: var(--sq-fg-muted) !important;
+  font-size: 0.82rem;
+}
+
+:root[data-theme="light"] .form-text {
+  color: #64748b !important;   /* Gris profesional en claro */
+}
+
+:root[data-theme="dark"] .form-text {
+  color: #a1a9b8 !important;   /* Gris claro visible en oscuro */
+}
+
+/* Opcional: Resaltar el texto de validación de contraseña */
+.form-text.password-hint {
+  color: var(--sq-fg-muted) !important;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}

@@ -55,3 +55,29 @@ export function statusLabel(s) {
 export function debounce(fn, ms = 300) {
   let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
 }
+// ESTO SON LAS FUNCIONES DE VALIDACIÓN
+
+export function isValidPassword(password) {
+  if (password.length < 6) return false;
+  
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+  
+  return hasUpper && hasLower && hasNumber && hasSpecial;
+}
+
+export function isValidRealName(name) {
+  if (name.length < 3) return false;
+  
+  // Permite letras (incluyendo acentos), espacios y algunos caracteres comunes
+  const nameRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s']{3,}$/;
+  if (!nameRegex.test(name)) return false;
+  
+  // Evitar nombres demasiado repetitivos o aleatorios
+  const uniqueChars = new Set(name.toLowerCase().replace(/\s/g, '')).size;
+  if (uniqueChars < 4) return false; // Evita "aaa aaa" o "xyz xyz"
+  
+  return true;
+}
