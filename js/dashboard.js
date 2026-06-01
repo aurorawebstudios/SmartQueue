@@ -113,6 +113,13 @@ const statActive = document.getElementById("stat-active");
 const statDone = document.getElementById("stat-done");
 const statCancelled = document.getElementById("stat-cancelled");
 
+let notifiedTickets = new Set();
+
+function playNotificationSound() {
+  const audio = new Audio("sounds/notification.mp3");
+  audio.play();
+}
+
 let allTickets = [];
 
 onSnapshot(
@@ -122,11 +129,32 @@ onSnapshot(
     orderBy("createdAt", "desc"),
   ),
   (snap) => {
-    allTickets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    renderStats();
-    renderHistory();
-    renderActive();
-  },
+    allTickets = snap.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  }));
+
+  allTickets.forEach(ticket => {
+
+    if (
+      ticket.status === "serving" &&
+      !notifiedTickets.has(ticket.id)
+    ) {
+
+      notifiedTickets.add(ticket.id);
+
+      playNotificationSound();
+
+      alert(
+        `🔔 ¡Es tu turno!\n\nNúmero: #${ticket.number}`
+      );
+    }
+  });
+
+  renderStats();
+  renderHistory();
+  renderActive();
+},
   (err) => { console.error(err); toast("Error cargando tus turnos.", "error"); }
 );
 
