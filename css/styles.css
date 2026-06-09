@@ -609,3 +609,21 @@ small {
 #queue-service:focus + .service-arrow {
     color: var(--sq-primary);
 }
+
+/* ====================== LOGO CON QR VISIBLE EN AMBOS MODOS ====================== */
+.sq-logo-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  transition: filter 0.3s ease;
+}
+
+/* Modo Claro - Se ve perfecto como ahora */
+:root[data-theme="light"] .sq-logo-img {
+  filter: brightness(1) contrast(1.08);
+}
+
+/* Modo Oscuro - Hacemos el QR visible */
+:root[data-theme="dark"] .sq-logo-img {
+  filter: brightness(2.2) contrast(1.4) saturate(1.1);
+}
