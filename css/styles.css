@@ -627,3 +627,33 @@ small {
 :root[data-theme="dark"] .sq-logo-img {
   filter: brightness(2.2) contrast(1.4) saturate(1.1);
 }
+
+/* ====================== HERO BACKGROUND - SOLO MODO OSCURO ====================== */
+.sq-hero {
+    position: relative;
+}
+
+.sq-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(135deg, #1a2333 0%, #0f172a 100%);
+}
+
+/* Modo Claro - Se mantiene exactamente como estaba antes */
+:root[data-theme="light"] .sq-hero::before {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* Mejor legibilidad del texto en modo oscuro */
+.sq-hero h1,
+.sq-hero .lead {
+    text-shadow: 0 3px 12px rgba(0, 0, 0, 0.85);
+}
+
+/* En modo claro no aplicamos sombra fuerte */
+:root[data-theme="light"] .sq-hero h1,
+:root[data-theme="light"] .sq-hero .lead {
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
