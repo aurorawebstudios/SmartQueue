@@ -208,58 +208,107 @@ document.getElementById("btn-complete-current").addEventListener("click", async 
 });
 
 // =============================================================================
-// SCAN QR
+// SCAN QR - VERSIÓN AVANZADA
 // =============================================================================
-let html5Qr = null;
+let html5QrScanner = null;
 const scanResult = document.getElementById("scan-result");
+const videoContainer = document.getElementById("qr-reader");
 
-document.getElementById("btn-scan-start").addEventListener("click", async () => {
-  /* global Html5Qrcode */
-  if (!window.Html5Qrcode) { toast("Librería de escaneo no cargada.", "error"); return; }
-  if (html5Qr) await stopScan();
-  html5Qr = new Html5Qrcode("qr-reader");
-  try {
-    await html5Qr.start({ facingMode: "environment" }, { fps: 10, qrbox: 240 }, onScanSuccess);
-    toast("Cámara iniciada.", "info");
-  } catch (err) { toast("No se pudo iniciar la cámara: " + err, "error"); html5Qr = null; }
-});
-document.getElementById("btn-scan-stop").addEventListener("click", stopScan);
-async function stopScan() {
-  if (!html5Qr) return;
-  try { await html5Qr.stop(); await html5Qr.clear(); } catch {}
-  html5Qr = null;
+async function startScanner() {
+    if (html5QrScanner) return;
+
+    html5QrScanner = new Html5Qrcode("qr-reader");
+
+    const config = { fps: 15, qrbox: { width: 280, height: 280 } };
+
+    try {
+        await html5QrScanner.start(
+            { facingMode: "environment" },
+            config,
+            onScanSuccess
+        );
+        document.getElementById("btn-scan-start").style.display = "none";
+        document.getElementById("btn-scan-stop").style.display = "inline-block";
+        toast("Cámara iniciada. Apunta al QR.", "info");
+    } catch (err) {
+        toast("Error al iniciar cámara: " + err, "error");
+    }
 }
-async function onScanSuccess(decoded) {
-  let payload;
-  try { payload = JSON.parse(decoded); } catch { scanResult.innerHTML = `<div class="text-danger">QR no válido.</div>`; return; }
-  if (!payload?.t) { scanResult.innerHTML = `<div class="text-danger">QR sin ID de turno.</div>`; return; }
-  try {
-    const snap = await getDoc(doc(db, "tickets", payload.t));
-    if (!snap.exists()) { scanResult.innerHTML = `<div class="text-danger">Turno inexistente.</div>`; return; }
-    const t = snap.data();
-    scanResult.innerHTML = `
-      <div class="d-flex align-items-center justify-content-between">
-        <div>
-          <div class="text-muted small">${esc(t.serviceName||"Servicio")}</div>
-          <div style="font-size:2rem;font-weight:800">#${t.number}</div>
-          <div class="small">Usuario: ${esc(t.userEmail||t.userId)}</div>
-          <div class="mt-1"><span class="sq-badge ${t.status}">${statusLabel(t.status)}</span></div>
-        </div>
-        <div class="d-grid gap-2">
-          <button class="btn btn-primary btn-sm" id="scan-call">Llamar</button>
-          <button class="btn btn-outline-soft btn-sm" id="scan-done">Marcar atendido</button>
-        </div>
-      </div>`;
-    document.getElementById("scan-call").onclick = async () => {
-      await updateDoc(doc(db, "tickets", payload.t), { status: "serving", calledAt: serverTimestamp() });
-      toast("Turno llamado.", "success");
-    };
-    document.getElementById("scan-done").onclick = async () => {
-      await updateDoc(doc(db, "tickets", payload.t), { status: "done", completedAt: serverTimestamp() });
-      toast("Turno completado.", "success");
-    };
-  } catch (err) { scanResult.innerHTML = `<div class="text-danger">${esc(err.message)}</div>`; }
+
+async function stopScanner() {
+    if (!html5QrScanner) return;
+    try {
+        await html5QrScanner.stop();
+        html5QrScanner.clear();
+    } catch (e) {}
+    html5QrScanner = null;
+    document.getElementById("btn-scan-start").style.display = "inline-block";
+    document.getElementById("btn-scan-stop").style.display = "none";
 }
+
+async function onScanSuccess(decodedText) {
+    stopScanner(); // Detener después de leer
+
+    let payload;
+    try {
+        payload = JSON.parse(decodedText);
+    } catch {
+        scanResult.innerHTML = `<div class="alert alert-danger">QR no válido (formato incorrecto)</div>`;
+        return;
+    }
+
+    if (!payload?.t) {
+        scanResult.innerHTML = `<div class="alert alert-danger">QR sin información de turno</div>`;
+        return;
+    }
+
+    try {
+        const ticketRef = doc(db, "tickets", payload.t);
+        const snap = await getDoc(ticketRef);
+
+        if (!snap.exists()) {
+            scanResult.innerHTML = `<div class="alert alert-danger">Turno no encontrado</div>`;
+            return;
+        }
+
+        const t = snap.data();
+        scanResult.innerHTML = `
+            <div class="alert alert-success">
+                <strong>#${t.number}</strong> - ${esc(t.serviceName || "Servicio")}<br>
+                <small>Usuario: ${esc(t.userEmail || t.userId)}</small><br>
+                <span class="sq-badge ${t.status}">${statusLabel(t.status)}</span>
+            </div>
+            <div class="d-grid gap-2 mt-3">
+                <button class="btn btn-success" onclick="callScannedTicket('${payload.t}')">Llamar Turno</button>
+                <button class="btn btn-primary" onclick="completeScannedTicket('${payload.t}')">Marcar como Atendido</button>
+            </div>
+        `;
+    } catch (err) {
+        scanResult.innerHTML = `<div class="alert alert-danger">Error: ${err.message}</div>`;
+    }
+}
+
+// Funciones globales para botones
+window.callScannedTicket = async (ticketId) => {
+    await updateDoc(doc(db, "tickets", ticketId), { 
+        status: "serving", 
+        calledAt: serverTimestamp() 
+    });
+    toast("Turno llamado correctamente", "success");
+};
+
+window.completeScannedTicket = async (ticketId) => {
+    await updateDoc(doc(db, "tickets", ticketId), { 
+        status: "done", 
+        completedAt: serverTimestamp() 
+    });
+    toast("Turno marcado como atendido", "success");
+    scanResult.innerHTML = `<div class="alert alert-info">Operación completada.</div>`;
+};
+
+// Botones
+document.getElementById("btn-scan-start").addEventListener("click", startScanner);
+document.getElementById("btn-scan-stop").addEventListener("click", stopScanner);
 
 // =============================================================================
 // USERS

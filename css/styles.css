@@ -4,41 +4,36 @@
    ========================================================================== */
 
 :root {
-  --sq-bg: #ffffff;
-  --sq-bg-soft: #f7f8fa;
-  --sq-bg-elevated: #ffffff;
-  --sq-fg: #0b1020;
-  --sq-fg-muted: #5b6478;
-  --sq-border: #e6e8ee;
-  --sq-border-strong: #d3d7e0;
-  --sq-primary: #635bff;       /* Stripe-ish indigo */
+  --sq-bg: #0a0a0a;
+  --sq-bg-soft: #111111;
+  --sq-bg-elevated: #171717;
+  --sq-fg: #f4f4f5;
+  --sq-fg-muted: #a1a1aa;
+  --sq-border: #27272a;
+  --sq-border-strong: #3f3f46;
+  --sq-primary: #6366f1;
   --sq-primary-600: #4f46e5;
-  --sq-primary-50: #eef0ff;
-  --sq-success: #10b981;
-  --sq-warning: #f59e0b;
-  --sq-danger:  #ef4444;
-  --sq-info:    #0ea5e9;
-  --sq-radius: 14px;
-  --sq-radius-sm: 10px;
-  --sq-shadow-sm: 0 1px 2px rgba(15,20,40,.06), 0 1px 1px rgba(15,20,40,.04);
-  --sq-shadow-md: 0 8px 24px rgba(15,20,40,.08);
-  --sq-shadow-lg: 0 24px 60px rgba(15,20,40,.12);
-  --sq-grad: linear-gradient(135deg, #635bff 0%, #8b5cf6 45%, #ec4899 100%);
-  --sq-font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --sq-success: #22c55e;
+  --sq-radius: 16px;
+  --sq-radius-sm: 12px;
+  --sq-shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+  --sq-shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+  --sq-shadow-lg: 0 10px 30px rgba(0,0,0,0.5);
+  --sq-font: "Inter", system-ui, -apple-system, sans-serif;
+  --sq-primary-50: rgba(99,102,241,.12);
+  --sq-grad: linear-gradient(135deg,#6366f1 0%,#8b5cf6 50%,#ec4899 100%);
+  --sq-info: #0ea5e9;
+  --sq-danger: #ef4444;
 }
 
-:root[data-theme="dark"] {
-  --sq-bg: #0b0d12;
-  --sq-bg-soft: #11141b;
-  --sq-bg-elevated: #151924;
-  --sq-fg: #f4f6fb;
-  --sq-fg-muted: #9aa3b2;
-  --sq-border: #1f2430;
-  --sq-border-strong: #2a3142;
-  --sq-primary-50: #1a1c3a;
-  --sq-shadow-sm: 0 1px 2px rgba(0,0,0,.4);
-  --sq-shadow-md: 0 10px 30px rgba(0,0,0,.45);
-  --sq-shadow-lg: 0 30px 80px rgba(0,0,0,.55);
+:root[data-theme="light"] {
+  --sq-bg: #ffffff;
+  --sq-bg-soft: #f8fafc;
+  --sq-bg-elevated: #ffffff;
+  --sq-fg: #0f172a;
+  --sq-fg-muted: #64748b;
+  --sq-border: #e2e8f0;
+  --sq-border-strong: #cbd5e1;
 }
 
 /* COLOR TEXTO DE ARRIBA DERECHA CORREO Y ROL (ADMIN O USUARIO) */
@@ -377,6 +372,67 @@ hr { border-color: var(--sq-border); opacity: 1; }
   }
 }
 
+/* ====================== MEJORAS PARA ESCANEO QR Y RESPONSIVE ====================== */
+
+/* Mejor visualización del contenedor del QR */
+#qr-reader {
+    border: 2px solid var(--sq-primary);
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    min-height: 320px;
+}
+
+/* Ajustes para móviles - Sidebar */
+@media (max-width: 992px) {
+    .sq-side {
+        position: fixed !important;
+        left: -285px !important;
+        top: 0;
+        width: 285px;
+        height: 100vh;
+        z-index: 1050;
+        transition: left 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+        box-shadow: 5px 0 30px rgba(0, 0, 0, 0.4);
+    }
+    
+    .sq-side.open {
+        left: 0 !important;
+    }
+    
+    .sq-main {
+        padding: 1rem !important;
+    }
+}
+
+/* Botón hamburguesa más visible */
+.mobile-menu-btn {
+    font-size: 1.9rem;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+/* Mejor aspecto de tarjetas en móviles */
+@media (max-width: 576px) {
+    .sq-ticket {
+        padding: 1.25rem;
+    }
+    .sq-ticket .num {
+        font-size: 2.6rem;
+    }
+}
+
+/* Asegurar que los badges se vean bien en ambos temas */
+.sq-badge {
+    font-size: 0.75rem;
+    padding: 0.35em 0.65em;
+}
+
+/* Mejor contraste en inputs */
+.form-control, .form-select {
+    color: var(--sq-fg) !important;
+}
+
 /* Prevenir zoom en iOS */
 input[type="text"],
 input[type="email"],
@@ -384,4 +440,172 @@ input[type="password"],
 input[type="number"],
 select {
   font-size: 16px !important;
+}
+
+/* ====================== SELECTOR DE SERVICIO - ESTILO FINAL MODERNO ====================== */
+
+#queue-service {
+    max-width: 520px !important;
+    width: 100% !important;
+    padding: 0.95rem 52px 0.95rem 1.35rem !important;
+    font-size: 1.08rem;
+    font-weight: 500;
+    border-radius: 12px;
+    background-color: #1f2937;
+    color: #e5e7eb;
+    border: 2px solid #4b5563;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    cursor: pointer;
+}
+
+#queue-service:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3);
+    outline: none;
+}
+
+/* Flecha siempre visible y animada */
+.position-absolute .fa-chevron-down {
+    font-size: 1.4rem;
+    color: #9ca3af;
+    transition: transform 0.25s ease;
+}
+
+#queue-service:focus ~ .position-absolute .fa-chevron-down {
+    transform: rotate(180deg);
+    color: #6366f1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    #queue-service {
+        max-width: 100% !important;
+        font-size: 1rem;
+        padding: 1rem 52px 1rem 1.35rem;
+    }
+}
+
+/* =====================================================
+   CORRECCIONES FINALES DE TEMA CLARO / OSCURO
+===================================================== */
+
+/* Texto normal */
+body,
+p,
+span,
+div,
+label,
+td,
+th,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--sq-fg);
+}
+
+/* Bootstrap text-muted */
+.text-muted {
+    color: var(--sq-fg-muted) !important;
+}
+
+/* Email/nombre arriba derecha */
+.user-email {
+    color: var(--sq-fg) !important;
+    font-weight: 600;
+}
+
+/* Placeholders */
+::placeholder {
+    color: var(--sq-fg-muted) !important;
+    opacity: .8;
+}
+
+/* Tablas */
+.table,
+.table td,
+.table th {
+    color: var(--sq-fg) !important;
+}
+
+/* Inputs */
+.form-control,
+.form-select,
+textarea {
+    background: var(--sq-bg-elevated) !important;
+    color: var(--sq-fg) !important;
+}
+
+.form-control::placeholder,
+textarea::placeholder {
+    color: var(--sq-fg-muted) !important;
+}
+
+/* Select desplegable */
+option {
+    background: var(--sq-bg-elevated);
+    color: var(--sq-fg);
+}
+
+/* Checkbox */
+.form-check-label {
+    color: var(--sq-fg);
+}
+
+/* Bootstrap cards */
+.card {
+    background: var(--sq-bg-elevated);
+    color: var(--sq-fg);
+}
+
+/* Dropdowns */
+.dropdown-menu {
+    background: var(--sq-bg-elevated);
+    border-color: var(--sq-border);
+}
+
+.dropdown-item {
+    color: var(--sq-fg);
+}
+
+.dropdown-item:hover {
+    background: var(--sq-bg-soft);
+}
+
+/* Links secundarios */
+.small,
+small {
+    color: var(--sq-fg-muted);
+}
+
+/* ================= SELECT SERVICIO ADMIN ================= */
+
+.position-relative {
+    max-width: 520px;
+}
+
+#queue-service {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    width: 100%;
+    padding-right: 55px !important;
+    cursor: pointer;
+}
+
+.service-arrow {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--sq-fg-muted);
+    font-size: 1rem;
+}
+
+#queue-service:focus + .service-arrow {
+    color: var(--sq-primary);
 }

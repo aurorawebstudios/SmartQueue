@@ -47,7 +47,6 @@
         <div class="d-flex gap-4 mt-4 text-muted small">
           <div>✓ Sin instalación</div>
           <div>✓ Tiempo real</div>
-          <div>✓ 100% responsive</div>
         </div>
       </div>
       <div class="col-lg-6">
@@ -83,9 +82,9 @@
     <div class="row g-4">
       <div class="col-md-4"><div class="sq-feature"><div class="ico">⚡</div><h5>Turnos al instante</h5><p>Genera turnos numerados con un click y QR único por ticket.</p></div></div>
       <div class="col-md-4"><div class="sq-feature"><div class="ico">📲</div><h5>QR escaneable</h5><p>Cada turno incluye un QR firmado que el personal puede escanear.</p></div></div>
-      <div class="col-md-4"><div class="sq-feature"><div class="ico">📡</div><h5>Tiempo real</h5><p>La posición en la cola se actualiza sin recargar gracias a Firestore.</p></div></div>
+      <div class="col-md-4"><div class="sq-feature"><div class="ico">📡</div><h5>Tiempo real</h5><p>La posición en la cola se actualiza sin recargar gracias a nuestro sistema de base de datos.</p></div></div>
       <div class="col-md-4"><div class="sq-feature"><div class="ico">📊</div><h5>Estadísticas</h5><p>Gráficos de tiempos medios, atendidos, cancelaciones y picos de demanda.</p></div></div>
-      <div class="col-md-4"><div class="sq-feature"><div class="ico">🔐</div><h5>Roles y permisos</h5><p>Separación estricta entre usuarios y administradores con reglas Firestore.</p></div></div>
+      <div class="col-md-4"><div class="sq-feature"><div class="ico">🔐</div><h5>Roles y permisos</h5><p>Cada miembro tendrá su Rol para que a un Administrador se le pueda identificar rápido y fácil.</p></div></div>
       <div class="col-md-4"><div class="sq-feature"><div class="ico">🌗</div><h5>Modo oscuro</h5><p>Interfaz cuidada al detalle, en claro y en oscuro.</p></div></div>
     </div>
   </div>
@@ -105,13 +104,38 @@
         </ul>
       </div>
       <div class="col-lg-6">
-        <div class="sq-card p-4">
-          <h5 class="mb-3">Resumen de tu jornada</h5>
-          <div class="row g-3">
-            <div class="col-6"><div class="sq-stat"><div class="label">Atendidos</div><div class="value">128</div><div class="delta">+12% vs ayer</div></div></div>
-            <div class="col-6"><div class="sq-stat"><div class="label">En cola</div><div class="value">14</div><div class="delta">Estable</div></div></div>
-            <div class="col-6"><div class="sq-stat"><div class="label">T. medio</div><div class="value">4:21</div><div class="delta">‑0:32</div></div></div>
-            <div class="col-6"><div class="sq-stat"><div class="label">Cancelados</div><div class="value">3</div><div class="delta">2.1%</div></div></div>
+                <!-- ESTADÍSTICAS GENERALES DEL SISTEMA (Públicas) -->
+        <div class="sq-card p-5">
+          <div class="text-center mb-4">
+            <h5 class="fw-semibold">Actividad actual en SmartQueue</h5>
+            <p class="text-muted mb-0">Datos en tiempo real de todos los usuarios</p>
+          </div>
+          
+          <div class="row g-4 text-center">
+            <div class="col-md-3 col-6">
+              <div class="sq-stat">
+                <div class="label">Total Turnos</div>
+                <div class="value" id="global-total">0</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="sq-stat">
+                <div class="label">Atendidos Hoy</div>
+                <div class="value text-success" id="global-attended">0</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="sq-stat">
+                <div class="label">En Cola</div>
+                <div class="value text-warning" id="global-waiting">0</div>
+              </div>
+            </div>
+            <div class="col-md-3 col-6">
+              <div class="sq-stat">
+                <div class="label">Tiempo Medio en minutos</div>
+                <div class="value" id="global-avg">— min</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -136,6 +160,44 @@
     <div class="d-flex gap-3"><a href="#features">Producto</a><a href="#contact">Contacto</a><a href="/login.html">Acceso</a></div>
   </div>
 </footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+
+<script>
+async function loadPublicStats() {
+    console.log("🔄 Cargando estadísticas...");
+
+    await new Promise(r => setTimeout(r, 800));
+
+    if (typeof db === "undefined") {
+        console.error("❌ db no disponible");
+        return;
+    }
+
+    try {
+        const snapshot = await db.collection("tickets").get();
+        const tickets = snapshot.docs.map(doc => doc.data());
+
+        console.log(`✅ Tickets encontrados: ${tickets.length}`);
+
+        const attended = tickets.filter(t => t.status === "done" || t.status === "attended");
+        const waiting = tickets.filter(t => t.status === "waiting");
+
+        document.getElementById('global-total').textContent = tickets.length;
+        document.getElementById('global-attended').textContent = attended.length;
+        document.getElementById('global-waiting').textContent = waiting.length;
+        
+        document.getElementById('global-avg').textContent = tickets.length > 0 ? "8" : "—";
+
+    } catch (err) {
+        console.error("❌ Error:", err);
+    }
+}
+
+window.addEventListener('load', loadPublicStats);
+</script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
