@@ -657,3 +657,87 @@ small {
 :root[data-theme="light"] .sq-hero .lead {
     text-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
+
+/* =============================================
+   RESPONSIVE MÓVIL - CORRECCIÓN FINAL (AÑADIDO)
+   ============================================= */
+
+@media (max-width: 992px) {
+  .sq-shell {
+    grid-template-columns: 1fr !important;
+  }
+
+  .sq-side {
+    position: fixed !important;
+    left: -290px !important;
+    top: 0;
+    width: 290px;
+    height: 100vh;
+    z-index: 1100;
+    transition: left 0.35s ease;
+    box-shadow: 8px 0 30px rgba(0,0,0,0.4);
+    overflow-y: auto;
+  }
+
+  .sq-side.open {
+    left: 0 !important;
+  }
+
+  .sq-main {
+    padding: 1rem 1rem 2rem !important;
+  }
+
+  .sq-topbar {
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--sq-border);
+  }
+
+  /* Botón hamburguesa siempre visible en móvil */
+  .mobile-menu-btn {
+    display: block !important;
+    font-size: 2rem;
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+}
+
+/* Asegurar que el sidebar del admin también funcione */
+.sq-side .side-link {
+  padding: 0.75rem 1rem;
+  font-size: 1.05rem;
+}
+
+/* Mejor espaciado en móviles pequeños */
+@media (max-width: 576px) {
+  .sq-card {
+    padding: 1.25rem !important;
+  }
+  
+  .sq-stat .value {
+    font-size: 1.6rem;
+  }
+}
+
+/* =============================================
+   BOTÓN TEMA EN MÓVIL - CORRECCIÓN
+   ============================================= */
+
+.sq-theme-btn {
+  width: 42px;
+  height: 42px;
+  font-size: 1.4rem;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+/* Asegurar que sea visible y clicable en móvil */
+@media (max-width: 992px) {
+  .sq-theme-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.6rem;
+  }
+}

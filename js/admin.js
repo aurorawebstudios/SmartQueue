@@ -208,30 +208,37 @@ document.getElementById("btn-complete-current").addEventListener("click", async 
 });
 
 // =============================================================================
-// SCAN QR - VERSIÓN AVANZADA
+// SCAN QR - VERSIÓN MEJORADA Y ESTABLE
 // =============================================================================
 let html5QrScanner = null;
 const scanResult = document.getElementById("scan-result");
-const videoContainer = document.getElementById("qr-reader");
 
 async function startScanner() {
-    if (html5QrScanner) return;
+    if (html5QrScanner) {
+        await stopScanner();
+    }
 
     html5QrScanner = new Html5Qrcode("qr-reader");
 
-    const config = { fps: 15, qrbox: { width: 280, height: 280 } };
+    const config = { 
+        fps: 20, 
+        qrbox: { width: 280, height: 280 },
+        aspectRatio: 1.0
+    };
 
     try {
         await html5QrScanner.start(
-            { facingMode: "environment" },
-            config,
+            { facingMode: "environment" }, 
+            config, 
             onScanSuccess
         );
+        
         document.getElementById("btn-scan-start").style.display = "none";
         document.getElementById("btn-scan-stop").style.display = "inline-block";
-        toast("Cámara iniciada. Apunta al QR.", "info");
+        toast("✅ Cámara iniciada. Apunta al QR del usuario.", "success");
     } catch (err) {
-        toast("Error al iniciar cámara: " + err, "error");
+        console.error(err);
+        toast("Error al iniciar la cámara. Asegúrate de permitir el acceso.", "error");
     }
 }
 
@@ -247,7 +254,8 @@ async function stopScanner() {
 }
 
 async function onScanSuccess(decodedText) {
-    stopScanner(); // Detener después de leer
+    // Detener la cámara al detectar un QR
+    await stopScanner();
 
     let payload;
     try {
@@ -288,7 +296,7 @@ async function onScanSuccess(decodedText) {
     }
 }
 
-// Funciones globales para botones
+// Funciones globales
 window.callScannedTicket = async (ticketId) => {
     await updateDoc(doc(db, "tickets", ticketId), { 
         status: "serving", 
