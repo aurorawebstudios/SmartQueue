@@ -435,3 +435,25 @@ function initMobileMenu() {
 
 // Inicializar cuando cargue el DOM
 document.addEventListener('DOMContentLoaded', initMobileMenu);
+
+// ====================== MENÚ HAMBURGUESA MÓVIL ======================
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const sidebar = document.querySelector('.sq-side');
+
+  if (mobileBtn && sidebar) {
+    mobileBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      sidebar.classList.toggle('open');
+    });
+
+    // Cerrar al tocar fuera
+    document.addEventListener('click', function(e) {
+      if (window.innerWidth <= 992) {
+        if (!e.target.closest('.sq-side') && !e.target.closest('#mobile-menu-btn')) {
+          sidebar.classList.remove('open');
+        }
+      }
+    });
+  }
+});
