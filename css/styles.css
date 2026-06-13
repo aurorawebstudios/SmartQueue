@@ -795,3 +795,32 @@ small {
   max-width: 100% !important;
   margin: 1rem !important;
 }
+
+/* =============================================
+   ADMIN PANEL - MÓVIL FIX (MÍNIMO)
+   ============================================= */
+
+@media (max-width: 992px) {
+  .sq-side {
+    left: -290px !important;
+    width: 290px !important;
+    z-index: 1150 !important;
+  }
+  
+  .sq-side.open {
+    left: 0 !important;
+  }
+
+  .sq-main {
+    padding: 1rem 0.8rem !important;
+  }
+
+  .sq-topbar h1 {
+    font-size: 1.4rem !important;
+  }
+
+  .table th, .table td {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.4rem;
+  }
+}

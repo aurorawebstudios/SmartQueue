@@ -457,3 +457,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// ====================== MENÚ HAMBURGUESA ADMIN (FIX) ======================
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileBtn = document.getElementById('mobile-menu-btn');
+  const sidebar = document.querySelector('.sq-side');
+
+  if (mobileBtn && sidebar) {
+    mobileBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      sidebar.classList.toggle('open');
+    });
+
+    document.addEventListener('click', function(e) {
+      if (window.innerWidth <= 992) {
+        if (!e.target.closest('.sq-side') && !e.target.closest('#mobile-menu-btn')) {
+          sidebar.classList.remove('open');
+        }
+      }
+    });
+  }
+});
