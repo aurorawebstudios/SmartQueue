@@ -41,13 +41,16 @@
         <label class="form-label" for="email">Email</label>
         <input id="email" type="email" class="form-control" required autocomplete="email" />
       </div>
-      <div class="mb-2">
-        <label class="form-label d-flex justify-content-between" for="password">
-          <span>Contraseña</span>
-          <a href="/forgot-password.html" class="small">¿Olvidaste tu contraseña?</a>
-        </label>
-        <input id="password" type="password" class="form-control" required autocomplete="current-password" minlength="6" />
-      </div>
+      <div class="mb-2 password-wrapper">
+  <label class="form-label d-flex justify-content-between" for="password">
+    <span>Contraseña</span>
+    <a href="/forgot-password.html" class="small">¿Olvidaste tu contraseña?</a>
+  </label>
+  <div class="input-group">
+    <input id="password" type="password" class="form-control" required autocomplete="current-password" minlength="6" />
+    <span class="pass-icon" id="toggle-login">👁️</span>
+  </div>
+</div>
       <button id="submit" class="btn btn-primary w-100 mt-3" type="submit">Iniciar sesión</button>
       <p class="muted small mt-3 mb-0 text-center">¿No tienes cuenta? <a href="/register.html">Regístrate</a></p>
     </form>
@@ -66,5 +69,6 @@
 </footer>
 
 <script type="module" src="/js/login.js"></script>
+<script src="js/password-toggle.js"></script>
 </body>
 </html>

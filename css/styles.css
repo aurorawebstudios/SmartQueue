@@ -1,6 +1,5 @@
 /* ==========================================================================
-   SmartQueue — Design System
-   Tokens, layout primitives & component overrides on top of Bootstrap 5.
+   SmartQueue — Mi FOCKING DISEÑO
    ========================================================================== */
 
 :root {
@@ -733,7 +732,7 @@ small {
   z-index: 100;
 }
 
-/* Asegurar que sea visible y clicable en móvil */
+/* Que sea visible en el focking móvil */
 @media (max-width: 992px) {
   .sq-theme-btn {
     width: 48px;
@@ -742,30 +741,30 @@ small {
   }
 }
 
-/* =============================================
-   ADMIN PANEL - MÓVIL FIX (MÍNIMO)
-   ============================================= */
+/* ====================== SHOW/HIDE PASSWORD ====================== */
+.password-wrapper {
+  position: relative !important;
+  width: 100% !important;
+}
 
-@media (max-width: 992px) {
-  .sq-side {
-    left: -290px !important;
-    width: 290px !important;
-    z-index: 1150 !important;
-  }
-  
-  .sq-side.open {
-    left: 0 !important;
-  }
+.password-wrapper input.form-control {
+  padding-right: 58px !important;
+}
 
-  .sq-main {
-    padding: 1rem 0.8rem !important;
-  }
+.pass-icon {
+  position: absolute !important;
+  right: 16px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  cursor: pointer !important;
+  font-size: 1.85rem !important;     /* Más grande */
+  color: var(--sq-fg-muted) !important;
+  z-index: 30 !important;
+  pointer-events: all !important;
+  line-height: 1;
+}
 
-  .sq-topbar h1 {
-    font-size: 1.4rem !important;
-  }
-
-  .table th, .table td {
-    font-size: 0.9rem;
-    padding: 0.6rem 0.4rem;
-  }
+.pass-icon:hover {
+  color: var(--sq-fg) !important;
+  transform: translateY(-50%) scale(1.15) !important;
+}
