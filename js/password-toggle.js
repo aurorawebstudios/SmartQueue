@@ -6,10 +6,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const input = toggleRegister.previousElementSibling;
       if (input.type === 'password') {
         input.type = 'text';
-        toggleRegister.textContent = '🙈';
+        toggleRegister.textContent = '👁️';
       } else {
         input.type = 'password';
-        toggleRegister.textContent = '👁️';
+        toggleRegister.textContent = '👁️‍🗨️';
       }
     });
   }
