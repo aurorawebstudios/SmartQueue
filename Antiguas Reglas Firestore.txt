@@ -1,0 +1,91 @@
+rules_version = '2';
+// =============================================================================
+// SmartQueue — Firestore Security Rules
+// -----------------------------------------------------------------------------
+// Modelo de roles:
+//   - "user"  → puede leer/crear sus propios tickets y leer servicios activos.
+//   - "admin" → CRUD total de servicios, contadores, tickets y lectura de usuarios.
+// El rol vive en /users/{uid}.role y NO puede modificarse desde el cliente.
+// =============================================================================
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+    function isSelf(uid)  { return isSignedIn() && request.auth.uid == uid; }
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // --- USERS ---------------------------------------------------------------
+    match /users/{uid} {
+      // Leer: el propio usuario o un admin.
+      allow get:  if isSelf(uid) || isAdmin();
+      allow list: if isAdmin();
+
+      // Crear: solo el propio usuario en el alta, forzando rol "user".
+      allow create: if isSelf(uid)
+        && request.resource.data.role == 'user'
+        && request.resource.data.email == request.auth.token.email;
+
+      // Actualizar: el propio usuario puede editar su perfil pero NO su rol.
+      // Admin puede actualizar cualquier campo (incluido role).
+      allow update: if (isSelf(uid) && request.resource.data.role == resource.data.role)
+                    || isAdmin();
+
+      // Borrar: solo admin.
+      allow delete: if isAdmin();
+    }
+
+    // --- SERVICES ------------------------------------------------------------
+    match /services/{serviceId} {
+      allow read: if isSignedIn();                 // todo usuario logado los ve
+      allow create, update, delete: if isAdmin();
+    }
+
+    // --- COUNTERS (1 por servicio) ------------------------------------------
+    match /counters/{serviceId} {
+      // Cualquier usuario logado puede leerlo e incrementarlo para reservar
+      // su número de turno (las reglas de /tickets validan el resto).
+      allow read, write: if isSignedIn();
+    }
+
+    // --- TICKETS -------------------------------------------------------------
+    match /tickets/{ticketId} {
+      // Lectura pública para estadísticas en index.html
+      allow get, list: if true;
+
+      // Crear ticket: solo usuarios logueados
+      allow create: if isSignedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'waiting'
+        && request.resource.data.number is number;
+
+      // Actualizar: Admin total o usuario puede cancelar su propio ticket
+      allow update: if isAdmin()
+        || (
+          isSignedIn()
+          && resource.data.userId == request.auth.uid
+          && request.resource.data.status == 'cancelled'
+          && resource.data.status in ['waiting', 'serving']
+        );
+
+      // Eliminar: solo admin
+      allow delete: if isAdmin();
+    }
+    
+    // === NUEVA REGLA PARA CÓDIGOS DE VERIFICACIÓN ===
+    match /verificationCodes/{userId} {
+      // Solo el propio usuario puede crear y leer su código de verificación
+      allow create, get, read: if isSelf(userId);
+      // Permitir borrar el código después de usarlo
+      allow delete: if isSelf(userId);
+    }
+
+    // Bloquea por defecto cualquier otra colección.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
