@@ -382,28 +382,6 @@ hr { border-color: var(--sq-border); opacity: 1; }
     min-height: 320px;
 }
 
-/* Ajustes para móviles - Sidebar */
-@media (max-width: 992px) {
-    .sq-side {
-        position: fixed !important;
-        left: -285px !important;
-        top: 0;
-        width: 285px;
-        height: 100vh;
-        z-index: 1050;
-        transition: left 0.35s cubic-bezier(0.32, 0.72, 0, 1);
-        box-shadow: 5px 0 30px rgba(0, 0, 0, 0.4);
-    }
-    
-    .sq-side.open {
-        left: 0 !important;
-    }
-    
-    .sq-main {
-        padding: 1rem !important;
-    }
-}
-
 /* Botón hamburguesa más visible */
 .mobile-menu-btn {
     font-size: 1.9rem;
@@ -699,12 +677,6 @@ small {
     padding: 8px 12px;
     border-radius: 8px;
   }
-}
-
-/* Asegurar que el sidebar del admin también funcione */
-.sq-side .side-link {
-  padding: 0.75rem 1rem;
-  font-size: 1.05rem;
 }
 
 /* Mejor espaciado en móviles pequeños */
