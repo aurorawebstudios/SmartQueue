@@ -217,7 +217,7 @@ async function loadPublicStats() {
     }
 }
 
-// Demo en tiempo real - Versión más robusta
+// Demo en tiempo real
 function loadLiveDemo() {
     if (typeof db === "undefined") return;
 
@@ -240,7 +240,7 @@ function loadLiveDemo() {
                 document.getElementById("demo-position").textContent = "No hay turnos en espera";
             }
 
-            // Atendiendo ahora - CORRECCIÓN CLAVE
+            // KLK la Atendiendo ahora 
             if (serving.length > 0) {
                 document.getElementById("demo-serving-ticket").textContent = `A-${serving[0].number || "039"}`;
             } else {
