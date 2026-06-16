@@ -61,23 +61,19 @@
 
     <div class="sq-card p-4 p-md-5">
       <h4 class="mb-4">¿En qué podemos ayudarte?</h4>
-      <form id="contact-form" action="https://formsubmit.co/aaron.dda11@gmail.com" method="POST">
+      <form id="contact-form">
   <div class="mb-3">
     <label class="form-label">Nombre</label>
-    <input type="text" name="nombre" class="form-control" required>
+    <input type="text" id="name" class="form-control" required>
   </div>
   <div class="mb-3">
     <label class="form-label">Email</label>
-    <input type="email" name="email" class="form-control" required>
+    <input type="email" id="email" class="form-control" required>
   </div>
   <div class="mb-4">
     <label class="form-label">Mensaje</label>
-    <textarea name="mensaje" class="form-control" rows="6" required></textarea>
+    <textarea id="message" class="form-control" rows="6" required></textarea>
   </div>
-
-  <input type="hidden" name="_subject" value="Nuevo mensaje desde SmartQueue">
-  <input type="hidden" name="_captcha" value="false">
-  <input type="hidden" name="_template" value="table">
 
   <button type="submit" class="btn btn-primary w-100 py-3">Enviar mensaje</button>
 </form>
@@ -107,5 +103,51 @@ document.getElementById("contact-form").addEventListener("submit", (e) => {
   e.target.reset();
 });
 </script>
+
+<!-- Añadido email antes de </body> -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  emailjs.init("C5tta5Z9efSseWM0D");
+
+  document.getElementById("contact-form").addEventListener("submit", function(e) {
+    e.preventDefault();
+    
+    const btn = e.target.querySelector("button");
+    btn.disabled = true;
+    btn.textContent = "Enviando...";
+
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+emailjs.init("C5tta5Z9efSseWM0D");
+
+document.getElementById("contact-form").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  const btn = e.target.querySelector("button");
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+
+  const params = {
+    name: document.getElementById("name").value,
+    email: document.getElementById("email").value,
+    message: document.getElementById("message").value
+  };
+
+  emailjs.send("service_yef9x78", "template_2uygqqk", params)
+    .then(() => {
+      alert("✅ Mensaje enviado correctamente. Gracias por contactarnos.");
+      e.target.reset();
+    })
+    .catch((err) => {
+      alert("Error: " + err.text);
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.textContent = "Enviar mensaje";
+    });
+});
+</script>
+
 </body>
 </html>
