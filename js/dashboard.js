@@ -290,7 +290,7 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// ====================== MENÚ MÓVIL ROBUSTO ======================
+// ====================== MENÚ MÓVIL ======================
 function initMobileMenu() {
   const mobileBtn = document.getElementById('mobile-menu-btn');
   const sidebar = document.querySelector('.sq-side');
@@ -324,7 +324,7 @@ function initMobileMenu() {
 // Inicializar cuando cargue el DOM
 document.addEventListener('DOMContentLoaded', initMobileMenu);
 
-// ====================== MENÚ HAMBURGUESA MÓVIL ======================
+// ====================== MENÚ HAMBURGUESA/3 RAYAS MÓVIL ======================
 document.addEventListener('DOMContentLoaded', function() {
   const mobileBtn = document.getElementById('mobile-menu-btn');
   const sidebar = document.querySelector('.sq-side');

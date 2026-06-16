@@ -19,10 +19,10 @@
 </head>
 <body class="bg-light">
     <div class="d-flex">
-        <!-- Sidebar -->
+
         <div id="sidebar"></div>
 
-        <!-- Main Content -->
+        <!-- EL FOCKING CONTENIDO PRINCIPAL -->
         <div class="flex-grow-1 p-4">
             <div class="d-flex justify-content-between align-items-center mb-5">
                 <h1 class="display-6 fw-bold">Dashboard Administrativo</h1>
@@ -74,7 +74,7 @@
                     <h5>Turnos en Cola (Tiempo Real)</h5>
                 </div>
                 <div class="card-body" id="liveQueue">
-                    <!-- Llenado dinámico -->
+
                 </div>
             </div>
         </div>
@@ -99,7 +99,7 @@
             document.getElementById('attendedToday').textContent = "76";
         }
 
-        // Cargar sidebar
+
         fetch('../components/sidebar-admin.html')
             .then(res => res.text())
             .then(html => document.getElementById('sidebar').innerHTML = html);

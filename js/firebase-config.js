@@ -1,4 +1,4 @@
-// js/firebase-config.js - Versión compatible para index.html
+// js/firebase-config.js
 const firebaseConfig = {
   apiKey: "AIzaSyBlV2jQBstYWe0XTZLDbTY8XyVP-1xY0RE",
   authDomain: "smartqueue-2026.firebaseapp.com",

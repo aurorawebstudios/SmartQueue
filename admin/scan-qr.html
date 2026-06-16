@@ -19,10 +19,10 @@
 </head>
 <body class="bg-light">
     <div class="d-flex">
-        <!-- Sidebar -->
+
         <div id="sidebar"></div>
 
-        <!-- Main Content -->
+        <!-- EL FOCKING CONTENIDO PRINCIPAL DE LA PAGINA -->
         <div class="flex-grow-1 p-5">
             <h1 class="display-6 fw-bold mb-4">Escanear Código QR</h1>
             
@@ -52,7 +52,7 @@
 
         protectRoute('admin');
 
-        // Cargar sidebar
+
         fetch('../components/sidebar-admin.html')
             .then(res => res.text())
             .then(html => document.getElementById('sidebar').innerHTML = html);

@@ -62,7 +62,7 @@
             </div>
 
             <div class="row g-4 mt-4">
-                <!-- Gráficos -->
+
                 <div class="col-lg-8">
                     <div class="card border-0 shadow-sm">
                         <div class="card-body">
@@ -89,7 +89,7 @@
 
         protectRoute('admin');
 
-        // Cargar Sidebar
+
         fetch('../components/sidebar-admin.html')
             .then(res => res.text())
             .then(html => document.getElementById('sidebar').innerHTML = html);

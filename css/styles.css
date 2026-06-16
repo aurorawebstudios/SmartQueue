@@ -41,7 +41,7 @@
     font-weight: 600;
 }
 
-/* Base ---------------------------------------------------------------- */
+/* La Base ---------------------------------------------------------------- */
 * { box-sizing: border-box; }
 html, body { height: 100%; }
 body {
@@ -57,8 +57,7 @@ a { color: var(--sq-primary); text-decoration: none; }
 a:hover { color: var(--sq-primary-600); }
 hr { border-color: var(--sq-border); opacity: 1; }
 
-/* Navbar -------------------------------------------------------------- */
-/* ====================== NAVBAR STICKY FIJO ====================== */
+/* ====================== NAVBAR FIJO PARA EL FOCKING PROYECTO ====================== */
 .sq-nav {
   position: fixed !important;     /* Cambiado a fixed para que sea más fiable */
   top: 0 !important;
@@ -88,7 +87,7 @@ hr { border-color: var(--sq-border); opacity: 1; }
 .sq-nav .nav-link { color: var(--sq-fg-muted); font-weight: 500; }
 .sq-nav .nav-link:hover { color: var(--sq-fg); }
 
-/* Buttons ------------------------------------------------------------- */
+/* Botones ------------------------------------------------------------- */
 .btn { border-radius: 10px; font-weight: 600; padding: .55rem 1rem; transition: all .15s ease; }
 .btn-primary {
   background: var(--sq-primary); border-color: var(--sq-primary); color:#fff;
@@ -107,7 +106,7 @@ hr { border-color: var(--sq-border); opacity: 1; }
 .btn-ghost { background: transparent; color: var(--sq-fg-muted); border:none; }
 .btn-ghost:hover { color: var(--sq-fg); background: var(--sq-bg-soft); }
 
-/* Cards --------------------------------------------------------------- */
+/* sq card de la pagina wey --------------------------------------------------------------- */
 .sq-card {
   background: var(--sq-bg-elevated);
   border: 1px solid var(--sq-border);
@@ -118,7 +117,7 @@ hr { border-color: var(--sq-border); opacity: 1; }
 .sq-card .card-body,
 .sq-card .card-footer { background: transparent; border-color: var(--sq-border); }
 
-/* Forms --------------------------------------------------------------- */
+/* Formularios --------------------------------------------------------------- */
 .form-control, .form-select {
   background: var(--sq-bg-elevated);
   color: var(--sq-fg);
@@ -134,7 +133,7 @@ hr { border-color: var(--sq-border); opacity: 1; }
 }
 .form-label { color: var(--sq-fg-muted); font-weight: 500; font-size: .9rem; }
 
-/* Hero ---------------------------------------------------------------- */
+/* Hero de la pagina ---------------------------------------------------------------- */
 .sq-hero {
   position: relative;
   padding: 7rem 0 5rem;
@@ -166,7 +165,7 @@ hr { border-color: var(--sq-border); opacity: 1; }
   padding: 1.25rem; overflow: hidden;
 }
 
-/* Feature cards ------------------------------------------------------- */
+/* características ------------------------------------------------------- */
 .sq-feature { padding: 1.5rem; border-radius: var(--sq-radius); border:1px solid var(--sq-border); background: var(--sq-bg-elevated); height:100%; }
 .sq-feature .ico {
   width:42px;height:42px;border-radius:12px;display:grid;place-items:center;
@@ -176,12 +175,12 @@ hr { border-color: var(--sq-border); opacity: 1; }
 .sq-feature h5 { font-weight: 700; letter-spacing:-0.01em; }
 .sq-feature p { color: var(--sq-fg-muted); margin:0; }
 
-/* Section --------------------------------------------------------------*/
+/* Sección --------------------------------------------------------------*/
 .sq-section { padding: 5rem 0; }
 .sq-section h2 { font-size: clamp(1.75rem, 3vw, 2.4rem); font-weight: 800; letter-spacing:-0.025em; }
 .sq-section .sub { color: var(--sq-fg-muted); max-width: 620px; margin: .5rem auto 0; }
 
-/* Auth pages ----------------------------------------------------------- */
+/* Las focking paginas de autorización ----------------------------------------------------------- */
 .sq-auth-wrap {
   min-height: calc(100vh - 64px);
   display:grid; place-items:center;

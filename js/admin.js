@@ -1,5 +1,5 @@
 // =============================================================================
-// Panel administrador: CRUD servicios, gestión de colas en tiempo real,
+// Panel administrador: servicios, gestión de colas en tiempo real,
 // escaneo de QR, listado de usuarios y estadísticas con Chart.js.
 // =============================================================================
 import { db } from "./firebase-init.js";
@@ -29,7 +29,7 @@ document.querySelectorAll("[data-tab]").forEach(t => t.addEventListener("click",
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
 
 // =============================================================================
-// SERVICES (CRUD)
+// SERVICIOS
 // =============================================================================
 const svcForm  = document.getElementById("service-form");
 const svcId    = document.getElementById("svc-id");
@@ -208,7 +208,7 @@ document.getElementById("btn-complete-current").addEventListener("click", async 
 });
 
 // =============================================================================
-// SCAN QR - VERSIÓN MEJORADA Y ESTABLE
+// ESCANEOS QR
 // =============================================================================
 let html5QrScanner = null;
 const scanResult = document.getElementById("scan-result");
@@ -319,7 +319,7 @@ document.getElementById("btn-scan-start").addEventListener("click", startScanner
 document.getElementById("btn-scan-stop").addEventListener("click", stopScanner);
 
 // =============================================================================
-// USERS
+// USUARIOS
 // =============================================================================
 const usersBody = document.getElementById("users-body");
 onSnapshot(query(collection(db, "users"), orderBy("createdAt", "desc")), (snap) => {
@@ -336,7 +336,7 @@ onSnapshot(query(collection(db, "users"), orderBy("createdAt", "desc")), (snap) 
 }, (err) => { console.error(err); toast("No se pueden cargar los usuarios.", "error"); });
 
 // =============================================================================
-// STATS (Chart.js)
+// LAS FOCKING ESTADÍSTICAS DE (Chart.js)
 // =============================================================================
 let chartDaily, chartService;
 async function renderStats() {
@@ -357,7 +357,7 @@ async function renderStats() {
       document.getElementById("s-avg").textContent = `${avgMin} min`;
     } else document.getElementById("s-avg").textContent = "—";
 
-    // Tickets por día últimos 14
+    // Tickets por día
     const days = []; const counts = [];
     for (let i = 13; i >= 0; i--) {
       const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
@@ -368,7 +368,7 @@ async function renderStats() {
       }).length);
     }
     if (chartDaily) chartDaily.destroy();
-    /* global Chart */
+
     chartDaily = new Chart(document.getElementById("chart-daily"), {
       type: "line",
       data: { labels: days, datasets: [{
@@ -398,11 +398,11 @@ async function renderStats() {
 document.addEventListener("click", (e) => {
   if (e.target.closest("[data-settings-toggle]")) {
     window.location.href = "dashboard/profile.html";   // Para dashboard
-    // Si estás en admin.html usa: "dashboard/profile.html"
+    // En el Admin se usa: "dashboard/profile.html"
   }
 });
 
-// ====================== MENÚ MÓVIL ROBUSTO ======================
+// ====================== MENÚ MÓVIL ======================
 function initMobileMenu() {
   const mobileBtn = document.getElementById('mobile-menu-btn');
   const sidebar = document.querySelector('.sq-side');
@@ -436,7 +436,7 @@ function initMobileMenu() {
 // Inicializar cuando cargue el DOM
 document.addEventListener('DOMContentLoaded', initMobileMenu);
 
-// ====================== MENÚ HAMBURGUESA MÓVIL ======================
+// ====================== MENÚ HAMBURGUESA/3 RAYAS MÓVIL ======================
 document.addEventListener('DOMContentLoaded', function() {
   const mobileBtn = document.getElementById('mobile-menu-btn');
   const sidebar = document.querySelector('.sq-side');
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-// ====================== MENÚ HAMBURGUESA ADMIN (FIX) ======================
+// ====================== MENÚ HAMBURGUESA ADMIN 2 ======================
 document.addEventListener('DOMContentLoaded', function() {
   const mobileBtn = document.getElementById('mobile-menu-btn');
   const sidebar = document.querySelector('.sq-side');

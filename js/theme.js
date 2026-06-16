@@ -1,4 +1,4 @@
-// Persistencia simple del modo claro/oscuro en localStorage.
+// Modo claro/oscuro en localStorage.
 const KEY = "sq-theme";
 
 export function getTheme() {
@@ -16,7 +16,7 @@ export function toggleTheme() {
   applyTheme(getTheme() === "dark" ? "light" : "dark");
 }
 
-// Aplicar lo antes posible para evitar parpadeo.
+
 applyTheme(getTheme());
 
 document.addEventListener("click", (e) => {
