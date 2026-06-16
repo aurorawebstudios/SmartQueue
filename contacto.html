@@ -116,37 +116,25 @@ document.getElementById("contact-form").addEventListener("submit", (e) => {
     btn.disabled = true;
     btn.textContent = "Enviando...";
 
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    const params = {
+      name: document.getElementById("name").value,
+      email: document.getElementById("email").value,
+      message: document.getElementById("message").value,
+    };
 
-<script>
-emailjs.init("C5tta5Z9efSseWM0D");
-
-document.getElementById("contact-form").addEventListener("submit", function(e) {
-  e.preventDefault();
-
-  const btn = e.target.querySelector("button");
-  btn.disabled = true;
-  btn.textContent = "Enviando...";
-
-  const params = {
-    name: document.getElementById("name").value,
-    email: document.getElementById("email").value,
-    message: document.getElementById("message").value
-  };
-
-  emailjs.send("service_yef9x78", "template_2uygqqk", params)
-    .then(() => {
-      alert("✅ Mensaje enviado correctamente. Gracias por contactarnos.");
-      e.target.reset();
-    })
-    .catch((err) => {
-      alert("Error: " + err.text);
-    })
-    .finally(() => {
-      btn.disabled = false;
-      btn.textContent = "Enviar mensaje";
-    });
-});
+    emailjs.send("service_yef9x78", "template_2uygqqk", params)
+      .then(() => {
+        alert("✅ Mensaje enviado correctamente. Gracias por contactarnos.");
+        e.target.reset();
+      })
+      .catch((err) => {
+        alert("Error: " + err.text);
+      })
+      .finally(() => {
+        btn.disabled = false;
+        btn.textContent = "Enviar mensaje";
+      });
+  });
 </script>
 
 </body>
