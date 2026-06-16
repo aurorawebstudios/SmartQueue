@@ -261,6 +261,17 @@ hr { border-color: var(--sq-border); opacity: 1; }
 /* Footer */
 .sq-footer { padding: 3rem 0; border-top: 1px solid var(--sq-border); color: var(--sq-fg-muted); }
 
+/* ====================== FOOTER LINKS ====================== */
+.sq-footer a {
+  color: var(--sq-primary) !important;
+  text-decoration: none;
+}
+
+.sq-footer a:hover {
+  color: var(--sq-primary-600) !important;
+  text-decoration: underline;
+}
+
 /* 404 */
 .sq-404 { min-height:100vh; display:grid; place-items:center; text-align:center; padding:2rem; }
 .sq-404 .code { font-size: clamp(5rem, 14vw, 9rem); font-weight: 900; letter-spacing:-0.05em;
