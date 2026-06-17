@@ -13,21 +13,38 @@
 <link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon-removebg-preview.png">
 <meta name="apple-mobile-web-app-title" content="SmartQueue">
 <link rel="manifest" href="assets/images/site.webmanifest">
+<script type="module" src="../js/theme.js"></script>
 </head>
 <body>
   <div class="sq-shell">
 
     <aside class="sq-side">
       <a class="navbar-brand d-flex align-items-center" href="index.html">
-  <img src="assets/images/apple-touch-icon-removebg-preview.png" 
-       alt="SmartQueue" 
-       class="sq-logo-img me-2">
+  <img src="/assets/images/apple-touch-icon-removebg-preview.png"
+     alt="SmartQueue"
+     class="sq-logo-img me-2">
   <span style="font-weight: 700;">SmartQueue</span>
 </a>
       <div class="nav-section">Cuenta</div>
       <a href="/dashboard.html" class="side-link">🏠 <span>Inicio</span></a>
       <a href="/dashboard/profile.html" class="side-link active">⚙️ <span>Mi Perfil</span></a>
     </aside>
+
+    <main class="sq-main">
+    <div class="sq-topbar">
+  <div class="d-flex align-items-center gap-3">
+    <button class="mobile-menu-btn" id="mobile-menu-btn">☰</button>
+    <h1 id="page-title">Perfil</h1>
+  </div>
+  
+  <div class="d-flex gap-2 align-items-center">
+    <span class="user-email small" id="user-email"></span>
+    
+    <button class="sq-theme-btn" data-theme-toggle>
+      <span data-theme-icon>🌙</span>
+    </button>
+  </div>
+</div>
 
     <main class="sq-main d-flex align-items-center justify-content-center min-vh-100">
       <div class="sq-card p-4 p-md-5" style="max-width: 620px; width: 100%;">
@@ -37,11 +54,27 @@
         <h5 class="mb-3">Información de la cuenta</h5>
         
         <div class="mb-4">
-          <p><strong>Nombre:</strong> <span id="profile-name" class="text-light">-</span></p>
-          <p><strong>Email:</strong> <span id="profile-email" class="text-light">-</span></p>
-          <p><strong>Fecha de registro:</strong> <span id="profile-created" class="text-light">-</span></p>
-          <p><strong>Rol:</strong> <span id="profile-role" class="text-light">-</span></p>
+          <p><strong>Nombre:</strong> <span id="profile-name" class="profile-value">-</span></p>
+          <p><strong>Email:</strong> <span id="profile-email" class="profile-value">-</span></p>
+          <p><strong>Fecha de registro:</strong> <span id="profile-created" class="profile-value">-</span></p>
+          <p><strong>Rol:</strong> <span id="profile-role" class="profile-value">-</span></p>
         </div>
+
+        <div class="text-center mb-5">
+  <div id="avatar-container" 
+       class="mx-auto position-relative rounded-3 overflow-hidden shadow border border-light"
+       style="width: 160px; height: 160px; background: #2a2a2a; cursor: pointer;">
+    
+    <img id="profile-avatar" 
+         src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+         alt="Foto de perfil" 
+         style="width: 100%; height: 100%; object-fit: cover; padding: 35px; background: #2a2a2a;">
+  </div>
+  
+  <p class="text-muted small mt-3">Haz clic en la foto para ver las opciones</p>
+</div>
+
+<input type="file" id="avatar-upload" accept="image/*" style="display:none;">
 
         <hr class="my-4">
 
@@ -55,6 +88,39 @@
     </main>
   </div>
 
-  <script type="module" src="../js/profile.js"></script>
+  <!-- MODAL FOTO DE PERFIL -->
+<div class="modal fade" id="avatarModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Foto de perfil</h5>
+        <button type="button" class="btn-close btn-close-white"
+                data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body d-grid gap-2">
+
+        <button class="btn btn-outline-light" id="btn-view-photo">
+          👁 Ver foto
+        </button>
+
+        <button class="btn btn-outline-primary" id="btn-change-photo">
+          🔄 Cambiar foto
+        </button>
+
+        <button class="btn btn-outline-danger" id="btn-delete-photo">
+          🗑 Eliminar foto
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="../js/profile.js"></script>
+
 </body>
 </html>

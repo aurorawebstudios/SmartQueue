@@ -25,6 +25,11 @@ document.getElementById("profile-role").textContent = user.role === "admin" ? "A
 const userDoc = await getDoc(doc(db, "users", user.uid));
 if (userDoc.exists()) {
   const data = userDoc.data();
+  if (data.photoURL) {
+  const avatarImg = document.getElementById("profile-avatar");
+  avatarImg.src = data.photoURL;
+  avatarImg.style.padding = "0px";
+}
   const createdDate = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
   document.getElementById("profile-created").textContent = 
     createdDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -112,3 +117,82 @@ document.getElementById("btn-delete-account").addEventListener("click", async ()
     toast("Error durante la eliminación: " + (err.message || ""), "error");
   }
 });
+
+// ====================== FOTO DE PERFIL ACTUALIZACIÓN PAL TEACHER ======================
+  const avatarContainer = document.getElementById('avatar-container');
+  const avatarImg = document.getElementById('profile-avatar');
+  const avatarInput = document.getElementById('avatar-upload');
+
+
+  // Click en el contenedor
+  avatarContainer.addEventListener("click", () => {
+  new bootstrap.Modal(document.getElementById("avatarModal")).show();
+});
+
+  function viewFullPhoto() {
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;display:flex;align-items:center;justify-content:center;cursor:zoom-out;`;
+    modal.innerHTML = `<img src="${avatarImg.src}" style="max-width:92%;max-height:92%;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.8);">`;
+    modal.onclick = () => modal.remove();
+    document.body.appendChild(modal);
+  }
+
+  document.getElementById("btn-view-photo").addEventListener("click", () => {
+  viewFullPhoto();
+});
+
+document.getElementById("btn-change-photo").addEventListener("click", () => {
+
+  bootstrap.Modal.getInstance(
+    document.getElementById("avatarModal")
+  ).hide();
+
+  setTimeout(() => {
+    avatarInput.click();
+  }, 200);
+
+});
+
+document.getElementById("btn-delete-photo").addEventListener("click", () => {
+  deleteProfilePhoto();
+});
+
+  // Subir foto
+  avatarInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 3*1024*1024) {
+      return toast("La imagen no debe superar los 3MB", "error");
+    }
+
+    const reader = new FileReader();
+    reader.onload = async function(ev) {
+      avatarImg.src = ev.target.result;
+      avatarImg.style.padding = "0px";
+
+      await updateProfile(auth.currentUser, { photoURL: ev.target.result });
+      await updateDoc(doc(db, "users", user.uid), { photoURL: ev.target.result });
+
+      toast("✅ Foto de perfil actualizada", "success");
+    };
+    reader.readAsDataURL(file);
+
+    });
+  // Eliminar foto
+  async function deleteProfilePhoto() {
+    if (!confirm("¿Eliminar tu foto de perfil?")) return;
+
+    avatarImg.src = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+    avatarImg.style.padding = "35px";
+    avatarInput.value = "";
+
+    try {
+      await updateProfile(auth.currentUser, { photoURL: null });
+      await updateDoc(doc(db, "users", user.uid), { photoURL: null });
+      toast("✅ Foto eliminada correctamente", "success");
+    } catch (err) {
+      toast("Error al eliminar la foto", "error");
+    }
+  }
